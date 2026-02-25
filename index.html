@@ -42,8 +42,8 @@
             src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
             ar ar-modes="webxr scene-viewer quick-look"
             camera-controls 
-            ar-placement="floor"
-            scale="1.2 0.01 1.8"
+            ar-placement="wall"
+            scale="0.5 0.75 0.02"
             shadow-intensity="1.5"
             shadow-softness="0.8">
             <button slot="ar-button" style="display: none;"></button>
@@ -51,10 +51,10 @@
 
         <div class="bottom-panel">
             <div class="info-card">
-                <h3 id="panelBaslik">Masadaki Menü</h3>
-                <p>Kameranızı masaya doğru tutun ve siparişinizi garsona iletmek için menümüzü inceleyin.</p>
+                <h3 id="panelBaslik">Menüyü Gör</h3>
+                <p>Kameranızı açın ve menü panosunu karşınıza yerleştirin.</p>
                 <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">
-                    AR Menüyü Masaya Koy
+                    AR Menüyü Aç
                 </button>
             </div>
         </div>
@@ -77,11 +77,9 @@
                 const cevap = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`);
                 if (cevap.ok) {
                     let menuVerisi = await cevap.json();
-                    
                     if(seciliKategori !== 'Tümü') {
                         menuVerisi = menuVerisi.filter(u => u.kategori === seciliKategori);
                     }
-
                     await arMenuCiz(menuVerisi, seciliKategori);
                 }
             } catch (e) { console.log(e); }
@@ -94,7 +92,7 @@
 
         async function arMenuCiz(veriler, kategori) {
             const canvas = document.createElement('canvas');
-            // ÇİZİM ALANI DİKEY YAPILDI (Rotasyon iptal)
+            // Dikey A4/Poster formatı
             canvas.width = 1200; 
             canvas.height = 1800; 
             const ctx = canvas.getContext('2d');
@@ -102,6 +100,8 @@
             // Zemin (Mat Siyah)
             ctx.fillStyle = '#111111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // ROTASYON KODLARI SİLİNDİ - ARTIK DÜZ ÇİZİYORUZ
 
             // EĞER KATEGORİ BOŞSA
             if(veriler.length === 0) {
@@ -137,7 +137,7 @@
                 let startY = 350;
                 
                 for (const urun of veriler) {
-                    if(startY > canvas.height - 200) break; // Sayfadan taşmasın
+                    if(startY > canvas.height - 250) break; 
 
                     // ÜRÜN FOTOĞRAFI
                     if (urun.resim) {
@@ -199,7 +199,7 @@
                 ctx.fillStyle = '#d4af37';
                 ctx.font = 'italic 30px "Playfair Display", serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Afiyet Olsun', canvas.width / 2, canvas.height - 60);
+                ctx.fillText('Afiyet Olsun', canvas.width / 2, canvas.height - 80);
             }
 
             // Texture'ı modele aktar
