@@ -3,95 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cafe-AR | İnteraktif Menü</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <title>Cafe-AR | Premium Menü</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;800&family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #121212; color: white; touch-action: pan-y; }
-        model-viewer { width: 100vw; height: 100vh; outline: none; }
+        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #0a0a0a; color: white; display: flex; flex-direction: column; height: 100vh; }
         
-        /* Arayüz Katmanı */
-        .ui-layer { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px; box-sizing: border-box; }
-        
-        /* Üst Bar & Sepet Butonu */
-        .top-bar { display: flex; justify-content: space-between; margin-top: 15px; pointer-events: auto; }
-        .brand { font-weight: 800; font-size: 20px; background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 12px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); }
-        .cart-btn { background: #f59e0b; color: #000; font-weight: 800; padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); cursor: pointer; transition: 0.2s; }
-        .cart-btn:active { transform: scale(0.95); }
+        /* Üst Bar */
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(0,0,0,0.8); border-bottom: 1px solid rgba(255,255,255,0.1); z-index: 20; }
+        .brand { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 800; color: #d4af37; letter-spacing: 1px; }
+        .cart-btn { background: #d4af37; color: black; font-weight: 800; padding: 8px 16px; border-radius: 20px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
 
-        /* Başlangıç Bilgi Paneli */
-        .info-panel { pointer-events: auto; background: rgba(20,20,20,0.85); backdrop-filter: blur(15px); padding: 25px 20px; border-radius: 24px; text-align: center; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .btn-ar { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: black; font-weight: 800; font-size: 16px; padding: 16px; border-radius: 14px; width: 100%; border: none; margin-top: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        /* Üst Kısım: 3D AR Sahnesi */
+        .ar-container { flex: 1; position: relative; background: #111; }
+        model-viewer { width: 100%; height: 100%; outline: none; --poster-color: transparent; }
         
-        /* --- AR İÇİ HOTSPOT (TIKLANABİLİR MENÜ KARTLARI) --- */
-        .hotspot-card {
-            background: rgba(15, 15, 15, 0.9);
-            border: 2px solid rgba(255,255,255,0.15);
-            border-radius: 16px;
-            padding: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 130px; /* Kartları biraz daha büyüttük */
-            backdrop-filter: blur(10px);
-            box-shadow: 0 15px 35px rgba(0,0,0,0.9);
-            transition: 0.2s;
-            cursor: pointer;
-        }
-        .hotspot-card:active { border-color: #f59e0b; transform: scale(0.95); }
-        .hotspot-card img { width: 110px; height: 110px; object-fit: cover; border-radius: 10px; margin-bottom: 8px; }
-        .hotspot-card .h-title { font-size: 14px; font-weight: 600; text-align: center; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        .hotspot-card .h-price { font-size: 16px; font-weight: 800; color: #f59e0b; margin-top: 4px; }
-        .hotspot-card .h-add { background: #f59e0b; color: #000; font-size: 12px; font-weight: 800; padding: 6px 15px; border-radius: 8px; margin-top: 10px; width: 100%; box-sizing: border-box; }
+        /* Şov Butonu */
+        .ar-overlay { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); z-index: 10; width: 90%; max-width: 350px; }
+        .btn-ar { background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%); color: black; font-weight: 800; font-size: 15px; padding: 16px; border-radius: 16px; width: 100%; border: none; cursor: pointer; box-shadow: 0 10px 30px rgba(212, 175, 55, 0.3); display: flex; justify-content: center; align-items: center; gap: 8px; }
+
+        /* Alt Kısım: Sipariş Listesi (Scrollable) */
+        .menu-list-container { height: 45vh; background: #151515; border-top: 1px solid rgba(255,255,255,0.1); overflow-y: auto; padding: 15px; padding-bottom: 50px; z-index: 20; }
+        .menu-item { display: flex; align-items: center; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 12px; border-radius: 16px; margin-bottom: 12px; }
+        .menu-item img { width: 70px; height: 70px; object-fit: cover; border-radius: 12px; margin-right: 15px; }
+        .menu-info { flex: 1; }
+        .menu-info h4 { margin: 0 0 5px 0; font-family: 'Playfair Display', serif; font-size: 17px; color: white; }
+        .menu-info p { margin: 0; font-size: 15px; font-weight: 800; color: #d4af37; }
+        .btn-add { background: rgba(212, 175, 55, 0.15); color: #d4af37; border: none; padding: 10px 15px; border-radius: 12px; font-weight: 800; font-size: 12px; cursor: pointer; transition: 0.2s; }
+        .btn-add:active { background: #d4af37; color: black; }
 
         /* Sepet Modalı */
-        #cartModal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 100; display: none; flex-direction: column; padding: 40px 20px; box-sizing: border-box; pointer-events: auto; backdrop-filter: blur(10px); }
-        .cart-header { display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px; }
-        .close-cart { background: rgba(255,255,255,0.1); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        #cartItems { flex: 1; overflow-y: auto; padding-right: 5px; }
-        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
-        .cart-total { font-size: 24px; font-weight: 800; text-align: right; margin: 20px 0; color: #f59e0b; }
-        .btn-order { background: #f59e0b; color: black; font-weight: 800; padding: 18px; border-radius: 16px; border: none; width: 100%; font-size: 16px; cursor: pointer; }
+        #cartModal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.95); z-index: 100; display: none; flex-direction: column; padding: 20px; box-sizing: border-box; backdrop-filter: blur(10px); }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; font-family: 'Playfair Display', serif; font-size: 24px; color: #d4af37; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-top: 20px; margin-bottom: 15px; }
+        .close-cart { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        #cartItems { flex: 1; overflow-y: auto; }
+        .cart-item-row { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 10px; }
+        .cart-total { font-size: 24px; font-weight: 800; text-align: right; margin: 20px 0; color: #d4af37; }
+        .btn-order { background: #d4af37; color: black; font-weight: 800; padding: 18px; border-radius: 16px; border: none; width: 100%; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <model-viewer id="ar-gosterici"
-        src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
-        ar ar-modes="webxr scene-viewer quick-look"
-        camera-controls 
-        ar-placement="floor"
-        scale="1.2 0.01 2" 
-        shadow-intensity="1">
-        <button slot="ar-button" style="display: none;"></button>
-
-        <div class="ui-layer">
-            <div class="top-bar">
-                <div class="brand">CAFE-AR</div>
-                <div class="cart-btn" onclick="sepetiAc()">
-                    🛒 <span id="cartCount">0</span>
-                </div>
-            </div>
-
-            <div class="info-panel">
-                <h2 style="margin: 0 0 5px 0;">Sihirli Menü</h2>
-                <p style="margin: 0; font-size: 14px; color: var(--text-muted);">Kamerayı açın, menüyü masaya yerleştirin ve yemeklere dokunarak sipariş verin.</p>
-                <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">
-                    Kamerayı Aç ve Masaya Koy
-                </button>
-            </div>
+    <div class="header">
+        <div class="brand">THE RESTAURANT</div>
+        <div class="cart-btn" onclick="sepetiAc()">
+            🛒 Sepet (<span id="cartCount">0</span>)
         </div>
-    </model-viewer>
+    </div>
+
+    <div class="ar-container">
+        <model-viewer id="ar-gosterici"
+            src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
+            ar ar-modes="webxr scene-viewer quick-look"
+            camera-controls 
+            ar-placement="floor"
+            scale="0.8 0.01 1.2"
+            shadow-intensity="1.5"
+            shadow-softness="1">
+            <button slot="ar-button" style="display: none;"></button>
+        </model-viewer>
+
+        <div class="ar-overlay">
+            <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">
+                📸 Masadaki Menüyü Gör
+            </button>
+        </div>
+    </div>
+
+    <div class="menu-list-container" id="menuList">
+        <p style="text-align: center; color: #666; margin-top: 20px;">Menü Yükleniyor...</p>
+    </div>
 
     <div id="cartModal">
         <div class="cart-header">
-            <span>🛒 Siparişiniz</span>
+            <span>Adisyonunuz</span>
             <button class="close-cart" onclick="sepetiKapat()">✕</button>
         </div>
         <div id="cartItems"></div>
         <div class="cart-total">Toplam: <span id="totalPrice">0</span> ₺</div>
-        <button class="btn-order" onclick="siparisGonder()">Siparişi Mutfağa Gönder</button>
+        <button class="btn-order" onclick="siparisGonder()">Siparişi Onayla</button>
     </div>
 
     <script>
@@ -101,74 +92,116 @@
         let menuVerisi = [];
         let sepet = [];
 
-        async function menuyuGetir() {
+        async function sistemiBaslat() {
             try {
                 const cevap = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`);
                 if (cevap.ok) {
                     menuVerisi = await cevap.json();
-                    arMenuyuInsaEt();
+                    
+                    // 1. Matbaa baskısı gibi AR Menüyü çiz
+                    await arKartiCiz(menuVerisi);
+                    
+                    // 2. Sipariş verilecek listeyi çiz
+                    siparisListesiniCiz(menuVerisi);
                 }
-            } catch (e) { console.error("Menü çekilemedi", e); }
+            } catch (e) { document.getElementById('menuList').innerHTML = "<p style='text-align:center;'>Menü henüz boş.</p>"; }
         }
 
-        // DİKEY MENÜ ALGORİTMASI (2 Sütunlu Grid)
-        function arMenuyuInsaEt() {
+        // --- DEV PROJE: DİNAMİK MENÜ BASKISI (CANVAS RENDERER) ---
+        // Bu kod havada asılı aslanı yok eder. Menüyü masaya kalıcı boyar.
+        async function arKartiCiz(veriler) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1536; // Dikdörtgen boyut
+            const ctx = canvas.getContext('2d');
+
+            // Zemin Rengi (Şık Mat Siyah)
+            ctx.fillStyle = '#111111';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Altın Çerçeve
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = 15;
+            ctx.strokeRect(30, 30, canvas.width - 60, canvas.height - 60);
+
+            // Başlık
+            ctx.fillStyle = '#d4af37';
+            ctx.font = 'bold 90px "Playfair Display", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('MENÜ', canvas.width / 2, 160);
+
+            // Çizgi
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2 - 150, 200);
+            ctx.lineTo(canvas.width / 2 + 150, 200);
+            ctx.stroke();
+
+            // Yemekleri Alt Alta Yazdır
+            let y = 350;
+            veriler.forEach(urun => {
+                // Yemek Adı
+                ctx.fillStyle = '#ffffff';
+                ctx.font = '50px Inter';
+                ctx.textAlign = 'left';
+                ctx.fillText(urun.ad, 100, y);
+
+                // Fiyatı (Nokta nokta boşluk bırakıp sağa yasla)
+                ctx.fillStyle = '#d4af37';
+                ctx.font = 'bold 50px Inter';
+                ctx.textAlign = 'right';
+                ctx.fillText(urun.fiyat + ' ₺', canvas.width - 100, y);
+
+                y += 100; // Bir sonraki yemek için aşağı in
+            });
+
+            // Afiyet Olsun Yazısı
+            ctx.fillStyle = '#555';
+            ctx.font = 'italic 30px Inter';
+            ctx.textAlign = 'center';
+            ctx.fillText('Afiyet Olsun...', canvas.width / 2, canvas.height - 100);
+
+            // Canvas'ı resme çevir ve 3D objeye kapla
+            const textureUrl = canvas.toDataURL('image/jpeg', 0.9);
             const mv = document.getElementById('ar-gosterici');
             
-            // Ürünleri yan yana 2'li şekilde dikey olarak dizeceğiz
-            const kolonSayisi = 2; 
-            const aralikX = 0.45; // Yan yana iki ürün arası mesafe (45cm)
-            const aralikZ = 0.55; // Alt alta iki ürün arası mesafe (55cm)
+            // Model Viewer'ın kaplama fonksiyonunun hazır olmasını bekle
+            await new Promise(r => setTimeout(r, 200)); 
+            if (mv.model && mv.model.materials) {
+                const texture = await mv.createTexture(textureUrl);
+                const material = mv.model.materials[0];
+                material.pbrMetallicRoughness.baseColorTexture.setTexture(texture);
+                material.pbrMetallicRoughness.setBaseColorFactor([1, 1, 1, 1]);
+            }
+        }
 
-            menuVerisi.forEach((urun, index) => {
-                const sutun = index % kolonSayisi; // 0 veya 1
-                const satir = Math.floor(index / kolonSayisi); // 0, 1, 2, 3...
-                
-                // Koordinat Hesaplama (Menüyü ortalamak için sutun - 0.5 yapıyoruz)
-                const x = (sutun - 0.5) * aralikX; 
-                const z = (satir - 1) * aralikZ; 
-                const y = 0.05; // Kartı masadan 5 cm havaya kaldırır
+        // --- SİPARİŞ LİSTESİ (Sade Web UX) ---
+        function siparisListesiniCiz(veriler) {
+            const listDiv = document.getElementById('menuList');
+            listDiv.innerHTML = "";
 
-                const hotspotBtn = document.createElement('button');
-                hotspotBtn.slot = `hotspot-${urun.id}`;
-                hotspotBtn.dataset.position = `${x} ${y} ${z}`; 
-                hotspotBtn.dataset.normal = "0 1 0"; 
-                hotspotBtn.className = "hotspot-card";
-                
-                hotspotBtn.innerHTML = `
-                    <img src="${urun.resim}">
-                    <div class="h-title">${urun.ad}</div>
-                    <div class="h-price">${urun.fiyat} ₺</div>
-                    <div class="h-add">SEPETE EKLE</div>
+            veriler.forEach((urun) => {
+                listDiv.innerHTML += `
+                    <div class="menu-item">
+                        <img src="${urun.resim}">
+                        <div class="menu-info">
+                            <h4>${urun.ad}</h4>
+                            <p>${urun.fiyat} ₺</p>
+                        </div>
+                        <button class="btn-add" onclick='sepeteEkle(${JSON.stringify(urun).replace(/'/g, "&#39;")})'>EKLE</button>
+                    </div>
                 `;
-
-                hotspotBtn.onclick = () => {
-                    if (navigator.vibrate) navigator.vibrate(50);
-                    sepeteEkle(urun);
-                    
-                    const addDiv = hotspotBtn.querySelector('.h-add');
-                    addDiv.innerText = "EKLENDİ ✔";
-                    addDiv.style.background = "#10b981"; 
-                    addDiv.style.color = "white"; 
-                    setTimeout(() => { 
-                        addDiv.innerText = "SEPETE EKLE"; 
-                        addDiv.style.background = "#f59e0b"; 
-                        addDiv.style.color = "black"; 
-                    }, 1000);
-                };
-
-                mv.appendChild(hotspotBtn);
             });
         }
 
         function sepeteEkle(urun) {
+            if (navigator.vibrate) navigator.vibrate(50);
             sepet.push(urun);
-            document.getElementById('cartCount').innerText = sepet.length;
             
-            // Sepete atınca butonu hoplat
             const cartBtn = document.querySelector('.cart-btn');
             cartBtn.style.transform = "scale(1.1)";
             setTimeout(() => cartBtn.style.transform = "scale(1)", 200);
+            
+            document.getElementById('cartCount').innerText = sepet.length;
         }
 
         function sepetiAc() {
@@ -179,17 +212,17 @@
             itemsDiv.innerHTML = "";
             
             if(sepet.length === 0) {
-                itemsDiv.innerHTML = "<p style='text-align:center; color:#888; margin-top:50px;'>Sepetiniz henüz boş.</p>";
+                itemsDiv.innerHTML = "<p style='text-align:center; color:#888; margin-top:50px;'>Adisyonunuz henüz boş.</p>";
             } else {
                 sepet.forEach((urun, index) => {
                     toplam += parseFloat(urun.fiyat);
                     itemsDiv.innerHTML += `
-                        <div class="cart-item">
+                        <div class="cart-item-row">
                             <div>
-                                <div style="font-weight:600; font-size:16px;">${urun.ad}</div>
-                                <div style="font-size:14px; color:#f59e0b; margin-top:4px;">${urun.fiyat} ₺</div>
+                                <div style="font-weight:600; font-size:18px;">${urun.ad}</div>
+                                <div style="font-size:15px; color:#d4af37; margin-top:4px;">${urun.fiyat} ₺</div>
                             </div>
-                            <button class="close-cart" style="color:#ef4444; background: rgba(239, 68, 68, 0.1);" onclick="sepettenCikar(${index})">X</button>
+                            <button class="close-cart" style="color:#ef4444; font-size:28px;" onclick="sepettenCikar(${index})">×</button>
                         </div>
                     `;
                 });
@@ -210,7 +243,7 @@
         }
 
         function siparisGonder() {
-            if(sepet.length === 0) return alert("Sepetiniz boş!");
+            if(sepet.length === 0) return alert("Adisyonunuz boş!");
             
             let mesaj = "🔔 *YENİ SİPARİŞ*\n\n";
             let toplam = 0;
@@ -218,7 +251,7 @@
                 mesaj += `- ${u.ad} (${u.fiyat} ₺)\n`;
                 toplam += parseFloat(u.fiyat);
             });
-            mesaj += `\n*Toplam:* ${toplam} ₺`;
+            mesaj += `\n*TOPLAM:* ${toplam} ₺`;
             
             window.open(`https://api.whatsapp.com/send?phone=905XXXXXXXXXX&text=${encodeURIComponent(mesaj)}`, '_blank');
             
@@ -227,7 +260,7 @@
             sepetiKapat();
         }
 
-        menuyuGetir();
+        sistemiBaslat();
     </script>
 </body>
 </html>
