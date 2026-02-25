@@ -43,7 +43,7 @@
             ar ar-modes="webxr scene-viewer quick-look"
             camera-controls 
             ar-placement="floor"
-            scale="1.6 0.01 1.2"
+            scale="1.2 0.01 1.8"
             shadow-intensity="1.5"
             shadow-softness="0.8">
             <button slot="ar-button" style="display: none;"></button>
@@ -82,7 +82,6 @@
                         menuVerisi = menuVerisi.filter(u => u.kategori === seciliKategori);
                     }
 
-                    // Boş kategori kontrolü ve Çizim
                     await arMenuCiz(menuVerisi, seciliKategori);
                 }
             } catch (e) { console.log(e); }
@@ -95,58 +94,52 @@
 
         async function arMenuCiz(veriler, kategori) {
             const canvas = document.createElement('canvas');
-            // Genişlik ve yüksekliği yer değiştirdik çünkü kutu kaplamayı yan alıyor
-            canvas.width = 1600; 
-            canvas.height = 1200; 
+            // ÇİZİM ALANI DİKEY YAPILDI (Rotasyon iptal)
+            canvas.width = 1200; 
+            canvas.height = 1800; 
             const ctx = canvas.getContext('2d');
 
             // Zemin (Mat Siyah)
             ctx.fillStyle = '#111111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // TİLT (YAN YATMA) DÜZELTMESİ: Tüm çizimi 90 derece döndürüyoruz
-            ctx.save();
-            ctx.translate(canvas.width / 2, canvas.height / 2);
-            ctx.rotate(-90 * Math.PI / 180);
-            ctx.translate(-600, -800); // 1200x1600'lük eski merkezimize göre kaydır
-
             // EĞER KATEGORİ BOŞSA
             if(veriler.length === 0) {
                 ctx.fillStyle = '#d4af37';
-                ctx.font = 'bold 60px "Playfair Display", serif';
+                ctx.font = 'bold 50px "Playfair Display", serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Bu Kategoride Henüz Ürün Yok', 600, 800);
+                ctx.fillText('Bu Kategoride Menü Bulunmuyor', canvas.width / 2, canvas.height / 2);
             } 
             // EĞER ÜRÜN VARSA
             else {
                 // Çerçeve
                 ctx.strokeStyle = '#d4af37';
                 ctx.lineWidth = 8;
-                ctx.strokeRect(40, 40, 1120, 1520);
+                ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
                 ctx.lineWidth = 2;
-                ctx.strokeRect(52, 52, 1096, 1496);
+                ctx.strokeRect(52, 52, canvas.width - 104, canvas.height - 104);
 
                 // Başlık
                 ctx.fillStyle = '#d4af37';
                 ctx.font = 'bold 70px "Playfair Display", serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('THE RESTAURANT', 600, 150);
+                ctx.fillText('THE RESTAURANT', canvas.width / 2, 150);
 
                 ctx.fillStyle = '#aaaaaa';
                 ctx.font = '35px Inter';
-                ctx.fillText(kategori === 'Tümü' ? 'MENU' : kategori.toUpperCase(), 600, 210);
+                ctx.fillText(kategori === 'Tümü' ? 'MENU' : kategori.toUpperCase(), canvas.width / 2, 210);
 
                 ctx.beginPath();
-                ctx.moveTo(400, 250);
-                ctx.lineTo(800, 250);
+                ctx.moveTo(canvas.width / 2 - 200, 250);
+                ctx.lineTo(canvas.width / 2 + 200, 250);
                 ctx.stroke();
 
                 let startY = 350;
                 
                 for (const urun of veriler) {
-                    if(startY > 1450) break;
+                    if(startY > canvas.height - 200) break; // Sayfadan taşmasın
 
-                    // ÜRÜN FOTOĞRAFI (Yüklenmeme sorununa karşı hata yakalama eklendi)
+                    // ÜRÜN FOTOĞRAFI
                     if (urun.resim) {
                         try {
                             const img = await loadImage(urun.resim);
@@ -161,7 +154,6 @@
                             ctx.lineWidth = 2;
                             ctx.roundRect ? ctx.strokeRect(80, startY, 160, 160, 20) : ctx.strokeRect(80, startY, 160, 160);
                         } catch(e) {
-                            // Resim yüklenmezse boş kutu çiz
                             ctx.fillStyle = '#222';
                             ctx.fillRect(80, startY, 160, 160);
                         }
@@ -189,7 +181,7 @@
                     ctx.fillStyle = '#ffffff';
                     ctx.font = 'bold 45px Inter';
                     ctx.textAlign = 'right';
-                    ctx.fillText(urun.fiyat + ' ₺', 1120, startY + 85);
+                    ctx.fillText(urun.fiyat + ' ₺', canvas.width - 80, startY + 85);
 
                     // Çizgi
                     ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
@@ -197,7 +189,7 @@
                     ctx.setLineDash([10, 10]);
                     ctx.beginPath();
                     ctx.moveTo(280, startY + 190);
-                    ctx.lineTo(1120, startY + 190);
+                    ctx.lineTo(canvas.width - 80, startY + 190);
                     ctx.stroke();
                     ctx.setLineDash([]); 
 
@@ -207,10 +199,8 @@
                 ctx.fillStyle = '#d4af37';
                 ctx.font = 'italic 30px "Playfair Display", serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Afiyet Olsun', 600, 1550);
+                ctx.fillText('Afiyet Olsun', canvas.width / 2, canvas.height - 60);
             }
-            
-            ctx.restore(); // Döndürme işlemini bitir
 
             // Texture'ı modele aktar
             const textureUrl = canvas.toDataURL('image/jpeg', 0.9);
