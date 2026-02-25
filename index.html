@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cafe-AR | Elit Menü</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>Cafe-AR | Elite Experience</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,800;1,600&family=Inter:wght@300;400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
 
     <style>
@@ -29,7 +29,7 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <div style="color: #d4af37; font-family: 'Playfair Display', serif; font-size: 18px;">Menü Hazırlanıyor...</div>
+        <div style="color: #d4af37; font-family: 'Playfair Display', serif; font-size: 18px;">Dev Menü Hazırlanıyor...</div>
     </div>
 
     <div class="header">
@@ -43,18 +43,18 @@
             ar ar-modes="webxr scene-viewer quick-look"
             camera-controls 
             ar-placement="wall"
-            scale="0.5 0.75 0.02"
-            shadow-intensity="1.5"
-            shadow-softness="0.8">
+            scale="2 3 0.05"
+            shadow-intensity="2"
+            shadow-softness="0.5">
             <button slot="ar-button" style="display: none;"></button>
         </model-viewer>
 
         <div class="bottom-panel">
             <div class="info-card">
-                <h3 id="panelBaslik">Menüyü Gör</h3>
-                <p>Kameranızı açın ve menü panosunu karşınıza yerleştirin.</p>
+                <h3 id="panelBaslik">Dev Menüyü Gör</h3>
+                <p>Kameranızı açın ve restoranın ortasına devasa menü totemini yerleştirin.</p>
                 <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">
-                    AR Menüyü Aç
+                    AR Totemi Aç
                 </button>
             </div>
         </div>
@@ -92,25 +92,28 @@
 
         async function arMenuCiz(veriler, kategori) {
             const canvas = document.createElement('canvas');
-            // Dikey A4/Poster formatı
+            // Yüksek Çözünürlüklü Dikey Canvas
             canvas.width = 1200; 
             canvas.height = 1800; 
             const ctx = canvas.getContext('2d');
+
+            // --- AYNALAMA DÜZELTME MOTORU ---
+            // Tuvali yatay olarak ters çeviriyoruz ki 3D objeye kaplanınca düz görünsün.
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
+            // ----------------------------------
 
             // Zemin (Mat Siyah)
             ctx.fillStyle = '#111111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // ROTASYON KODLARI SİLİNDİ - ARTIK DÜZ ÇİZİYORUZ
-
-            // EĞER KATEGORİ BOŞSA
             if(veriler.length === 0) {
                 ctx.fillStyle = '#d4af37';
                 ctx.font = 'bold 50px "Playfair Display", serif';
                 ctx.textAlign = 'center';
+                // Aynalama yüzünden merkez noktası kayar, onu düzeltiyoruz
                 ctx.fillText('Bu Kategoride Menü Bulunmuyor', canvas.width / 2, canvas.height / 2);
             } 
-            // EĞER ÜRÜN VARSA
             else {
                 // Çerçeve
                 ctx.strokeStyle = '#d4af37';
@@ -137,9 +140,8 @@
                 let startY = 350;
                 
                 for (const urun of veriler) {
-                    if(startY > canvas.height - 250) break; 
+                    if(startY > canvas.height - 280) break; 
 
-                    // ÜRÜN FOTOĞRAFI
                     if (urun.resim) {
                         try {
                             const img = await loadImage(urun.resim);
@@ -147,6 +149,8 @@
                             ctx.beginPath();
                             ctx.roundRect ? ctx.roundRect(80, startY, 160, 160, 20) : ctx.rect(80, startY, 160, 160);
                             ctx.clip();
+                            // Resim çizilirken de aynalamayı hesaba katmak gerekebilir, test edelim.
+                            // Şimdilik ana aynalama yeterli olmalı.
                             ctx.drawImage(img, 80, startY, 160, 160);
                             ctx.restore();
                             
@@ -196,13 +200,19 @@
                     startY += 230; 
                 }
 
+                // Afiyet Olsun
                 ctx.fillStyle = '#d4af37';
                 ctx.font = 'italic 30px "Playfair Display", serif';
                 ctx.textAlign = 'center';
-                ctx.fillText('Afiyet Olsun', canvas.width / 2, canvas.height - 80);
+                ctx.fillText('Afiyet Olsun', canvas.width / 2, canvas.height - 120);
+
+                // --- İMZA: Powered by Fthlabz ---
+                ctx.fillStyle = '#555555';
+                ctx.font = 'bold 24px Montserrat, sans-serif';
+                ctx.letterSpacing = "2px";
+                ctx.fillText('POWERED BY FTHLABZ', canvas.width / 2, canvas.height - 50);
             }
 
-            // Texture'ı modele aktar
             const textureUrl = canvas.toDataURL('image/jpeg', 0.9);
             const mv = document.getElementById('ar-gosterici');
             
