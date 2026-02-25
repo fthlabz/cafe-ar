@@ -3,74 +3,90 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Cafe-AR | Yönetim Terminali</title>
+    <title>Cafe-AR | Yönetim Paneli</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <style>
-        :root { --bg-dark: #121212; --card-glass: rgba(25, 25, 25, 0.8); --input-bg: rgba(255, 255, 255, 0.05); --accent: #f59e0b; --text-main: #ffffff; --text-muted: #a1a1aa; --danger: #ef4444; }
-        body { margin: 0; font-family: 'Inter', sans-serif; background: radial-gradient(circle at 50% 0%, #2a2a2a 0%, var(--bg-dark) 80%); color: var(--text-main); min-height: 100vh; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; padding-bottom: 50px; }
+        :root { --bg-dark: #0f0f11; --card-glass: rgba(25, 25, 25, 0.9); --accent: #d4af37; --text-main: #ffffff; --text-muted: #a1a1aa; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #0f0f11; color: var(--text-main); min-height: 100vh; padding: 20px; }
+        .container { max-width: 550px; margin: 0 auto; padding-bottom: 50px; }
         header { text-align: center; margin-bottom: 30px; }
-        h2 { font-weight: 800; font-size: 24px; margin: 0; color: var(--accent); }
-        .glass-card { background: var(--card-glass); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); padding: 25px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { font-weight: 800; font-size: 24px; margin: 0; color: var(--accent); letter-spacing: 1px; }
+        .glass-card { background: var(--card-glass); border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2); padding: 25px; margin-bottom: 20px; }
         
-        .upload-area { position: relative; width: 100%; height: 160px; border: 2px dashed rgba(245, 158, 11, 0.3); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; background: rgba(0,0,0,0.2); overflow: hidden; margin-bottom: 15px; transition: 0.3s; }
-        .upload-area:hover { border-color: var(--accent); background: rgba(245, 158, 11, 0.05); }
+        .upload-area { position: relative; width: 100%; height: 160px; border: 2px dashed rgba(212, 175, 55, 0.4); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; background: rgba(0,0,0,0.5); overflow: hidden; margin-bottom: 15px; }
         .upload-area input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
-        #previewImg { position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; opacity: 0.7; z-index: 1; display: none; }
-        .upload-text { font-size: 14px; color: var(--text-muted); font-weight: 500; z-index: 1;}
+        #previewImg { position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; opacity: 0.8; z-index: 1; display: none; }
         
-        input, select { background: var(--input-bg); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px; border-radius: 12px; font-size: 14px; width: 100%; box-sizing: border-box; margin-bottom: 12px; outline: none; }
+        input, select { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px; border-radius: 12px; font-size: 14px; width: 100%; box-sizing: border-box; margin-bottom: 12px; outline: none; transition: 0.3s;}
         input:focus, select:focus { border-color: var(--accent); }
+        select option { background: #111; }
         
-        .btn-main { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; font-size: 15px; margin-top: 5px; }
+        .btn-main { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; font-size: 15px; margin-top: 10px; transition: 0.2s;}
         .btn-main:active { transform: scale(0.97); }
         
-        .list-item { display: flex; align-items: center; background: rgba(255,255,255,0.03); padding: 10px; border-radius: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
-        .thumb { width: 50px; height: 50px; border-radius: 10px; object-fit: cover; margin-right: 15px; }
+        .list-item { display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+        .thumb { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; margin-right: 15px; border: 1px solid var(--accent); }
         .info { flex: 1; }
-        .info h4 { margin: 0 0 3px 0; font-size: 14px; }
-        .info p { margin: 0; font-size: 12px; color: var(--text-muted); }
-        .btn-del { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: none; width: 35px; height: 35px; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        #statusText { text-align: center; color: var(--accent); font-size: 13px; margin-top: 10px; display: none; }
+        .info h4 { margin: 0 0 5px 0; font-size: 15px; color: var(--accent); }
+        .info p { margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.4; }
+        .fiyat { font-weight: bold; color: white; font-size: 14px; margin-top: 5px; }
+        
+        .btn-action { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-left: 5px; }
+        .btn-del { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        
+        .qr-link-box { background: rgba(212,175,55,0.1); border: 1px dashed var(--accent); padding: 10px; border-radius: 10px; margin-bottom: 15px; font-size: 12px; color: #ccc; word-break: break-all; text-align: center; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h2>CAFE-AR PANEL</h2>
-        <div style="color:var(--text-muted); font-size: 13px;">Dinamik Menü Yönetimi</div>
+        <h2>THE RESTAURANT</h2>
+        <div style="color:var(--text-muted); font-size: 13px; margin-top:5px;">Elit Menü Yönetimi</div>
     </header>
 
     <div class="glass-card">
         <div class="upload-area">
-            <span class="upload-text" id="upText">📸 Ürün Görseli Seç</span>
+            <span id="upText" style="color:var(--accent); font-weight:bold;">📸 Ürün Görseli Seç</span>
             <img id="previewImg">
             <input type="file" id="fileInput" accept="image/*" onchange="gorselSec(this)">
         </div>
 
         <select id="kategori">
-            <option value="Burgerler">🍔 Burgerler</option>
-            <option value="Pizzalar">🍕 Pizzalar</option>
-            <option value="İçecekler">🥤 İçecekler</option>
-            <option value="Tatlılar">🍰 Tatlılar</option>
+            <option value="AnaYemekler">Ana Yemekler</option>
+            <option value="Baslangiclar">Başlangıçlar</option>
+            <option value="Tatlilar">Tatlılar</option>
+            <option value="SicakIcecekler">Sıcak İçecekler</option>
+            <option value="SogukIcecekler">Soğuk İçecekler</option>
         </select>
         
-        <input type="text" id="urunAdi" placeholder="Yemek Adı (Örn: Truffle Burger)" required>
-        <input type="text" id="fiyat" placeholder="Fiyat (Örn: 350)" required>
+        <input type="text" id="urunAdi" placeholder="Yemek Adı (Örn: Dana Lokum)" required>
+        <input type="text" id="icerik" placeholder="İçindekiler (Örn: Trüf mantarı, bebek patates)" required>
+        
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="kalori" placeholder="Kalori (Örn: 450 kcal)" required>
+            <input type="text" id="fiyat" placeholder="Fiyat (Örn: 850)" required>
+        </div>
         
         <button class="btn-main" onclick="menuyeEkle()">MENÜYE EKLE</button>
-        <div id="statusText">İşleniyor...</div>
+        <div id="statusText" style="text-align:center; color:var(--accent); display:none; margin-top:10px; font-size:13px;">İşleniyor...</div>
     </div>
 
     <div class="glass-card" style="padding: 15px;">
-        <h3 style="margin: 0 0 15px 0; font-size: 15px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Yayındaki Menü (<span id="count">0</span>)</h3>
+        <h3 style="margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Yayındaki Menü (<span id="count">0</span>)</h3>
+        
+        <div class="qr-link-box">
+            Müşterilere vereceğiniz örnek link yapısı:<br>
+            <strong style="color:var(--accent);">https://fthlabz.github.io/cafe-ar/index.html?kategori=Tatlilar</strong>
+        </div>
+
         <div id="menuListesi"></div>
     </div>
 </div>
 
 <script>
+    // GitHub Ayarları
     const KULLANICI = "fthlabz"; 
     const REPO = "cafe-ar"; 
     const sifreliKasa = "U2FsdGVkX19mc0X7xpzonbEzWQgJl2dp+4Oqrqhg6zeA49eOwhvOSgJsBs2IQkLhw61Ilvvd6nS1CVjkJ+0bnA=="; 
@@ -95,17 +111,19 @@
         try {
             const cevap = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`);
             if (cevap.ok) { menu = await cevap.json(); listeyiCiz(); }
-        } catch (e) { console.log("Menü yeni oluşturulacak."); }
+        } catch (e) { console.log("Menü oluşturulacak."); }
     }
     sistemiBaslat();
 
     async function menuyeEkle() {
         const file = document.getElementById('fileInput').files[0];
         const ad = document.getElementById('urunAdi').value;
+        const icerik = document.getElementById('icerik').value;
+        const kalori = document.getElementById('kalori').value;
         const fiyat = document.getElementById('fiyat').value;
         const kategori = document.getElementById('kategori').value;
 
-        if (!file || !ad || !fiyat) { alert("Lütfen tüm alanları doldurun."); return; }
+        if (!file || !ad || !fiyat) { alert("Resim, İsim ve Fiyat zorunludur!"); return; }
 
         const st = document.getElementById('statusText');
         st.style.display = "block"; st.innerText = "Görsel İşleniyor... ⏳";
@@ -115,10 +133,12 @@
         
         await new Promise(r => img.onload = r);
         const canvas = document.createElement('canvas');
-        let w = img.width, h = img.height;
-        if(w > 800 || h > 800) { if(w>h){h*=800/w; w=800;} else{w*=800/h; h=800;} }
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        
+        // Kare Kesim Optimizasyonu
+        let size = Math.min(img.width, img.height);
+        canvas.width = 600; canvas.height = 600;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, (img.width-size)/2, (img.height-size)/2, size, size, 0, 0, 600, 600);
         
         const base64Content = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
         const dosyaAdi = `yemek_${Date.now()}.jpg`;
@@ -133,9 +153,13 @@
 
             if (res.ok) {
                 const data = await res.json();
-                menu.push({ id: Date.now(), ad: ad, fiyat: fiyat, kategori: kategori, resim: data.content.download_url });
+                menu.push({ 
+                    id: Date.now(), ad: ad, icerik: icerik, kalori: kalori, fiyat: fiyat, 
+                    kategori: kategori, resim: data.content.download_url 
+                });
                 await jsonKaydet();
-                st.innerText = "Başarıyla Eklendi! ✅";
+                
+                st.innerText = "Menüye Eklendi! ✅";
                 setTimeout(() => st.style.display = 'none', 2000);
                 listeyiCiz();
             }
@@ -146,20 +170,37 @@
         const list = document.getElementById('menuListesi');
         document.getElementById('count').innerText = menu.length;
         list.innerHTML = "";
-        menu.forEach(u => {
+        
+        // Menüyü tersten dizelim (en son eklenen en üstte çıksın)
+        [...menu].reverse().forEach(u => {
             list.innerHTML += `
                 <div class="list-item">
                     <img src="${u.resim}" class="thumb">
                     <div class="info">
-                        <h4>${u.ad}</h4><p>${u.kategori} • ${u.fiyat} ₺</p>
+                        <h4>${u.ad}</h4>
+                        <p>${u.kategori} • ${u.kalori}</p>
+                        <div class="fiyat">${u.fiyat} ₺</div>
                     </div>
-                    <button class="btn-del" onclick="sil(${u.id})">X</button>
+                    <div style="display:flex; flex-direction:column; gap:5px;">
+                        <button class="btn-action" onclick="fiyatGuncelle(${u.id})">✏️ Fiyat</button>
+                        <button class="btn-action btn-del" onclick="sil(${u.id})">🗑️ Sil</button>
+                    </div>
                 </div>`;
         });
     }
 
+    async function fiyatGuncelle(id) {
+        const urun = menu.find(m => m.id === id);
+        const yeniFiyat = prompt(`${urun.ad} için yeni fiyatı girin:`, urun.fiyat);
+        if (yeniFiyat && yeniFiyat !== urun.fiyat) {
+            urun.fiyat = yeniFiyat;
+            await jsonKaydet();
+            listeyiCiz();
+        }
+    }
+
     async function sil(id) {
-        if (confirm("Silmek istediğinize emin misiniz?")) {
+        if (confirm("Bu ürünü menüden kaldırmak istediğinize emin misiniz?")) {
             menu = menu.filter(m => m.id !== id);
             await jsonKaydet(); listeyiCiz();
         }
