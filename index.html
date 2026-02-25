@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Cafe-AR | İnteraktif Menü</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+    <style>
+        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #121212; color: white; touch-action: pan-y; }
+        model-viewer { width: 100vw; height: 100vh; outline: none; }
+        
+        /* Arayüz Katmanı */
+        .ui-layer { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events: none; z-index: 10; display: flex; flex-direction: column; justify-content: space-between; padding: env(safe-area-inset-top) 20px env(safe-area-inset-bottom) 20px; box-sizing: border-box; }
+        
+        /* Üst Bar & Sepet Butonu */
+        .top-bar { display: flex; justify-content: space-between; margin-top: 15px; pointer-events: auto; }
+        .brand { font-weight: 800; font-size: 20px; background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 12px; backdrop-filter: blur(10px); }
+        .cart-btn { background: #f59e0b; color: #000; font-weight: 800; padding: 10px 20px; border-radius: 12px; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4); cursor: pointer; transition: 0.2s; }
+        .cart-btn:active { transform: scale(0.95); }
+
+        /* Başlangıç Bilgi Paneli */
+        .info-panel { pointer-events: auto; background: rgba(20,20,20,0.85); backdrop-filter: blur(15px); padding: 20px; border-radius: 20px; text-align: center; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 20px; }
+        .btn-ar { background: white; color: black; font-weight: 800; font-size: 16px; padding: 15px; border-radius: 14px; width: 100%; border: none; margin-top: 15px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        
+        /* --- AR İÇİ HOTSPOT (TIKLANABİLİR MENÜ KARTLARI) --- */
+        .hotspot-card {
+            background: rgba(15, 15, 15, 0.9);
+            border: 2px solid rgba(255,255,255,0.15);
+            border-radius: 16px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 120px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .hotspot-card:active { border-color: #f59e0b; transform: scale(0.95); }
+        .hotspot-card img { width: 100px; height: 100px; object-fit: cover; border-radius: 10px; margin-bottom: 8px; }
+        .hotspot-card .h-title { font-size: 13px; font-weight: 600; text-align: center; color: white; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .hotspot-card .h-price { font-size: 15px; font-weight: 800; color: #f59e0b; margin-top: 4px; }
+        .hotspot-card .h-add { background: #f59e0b; color: #000; font-size: 11px; font-weight: 800; padding: 5px 15px; border-radius: 8px; margin-top: 8px; width: 100%; box-sizing: border-box; }
+
+        /* Sepet Modalı */
+        #cartModal { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; padding: 40px 20px; box-sizing: border-box; pointer-events: auto;}
+        .cart-header { display: flex; justify-content: space-between; align-items: center; font-size: 20px; font-weight: 800; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 15px; margin-bottom: 15px; }
+        .close-cart { background: none; border: none; color: white; font-size: 24px; cursor: pointer; }
+        #cartItems { flex: 1; overflow-y: auto; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 12px; margin-bottom: 10px; }
+        .cart-total { font-size: 22px; font-weight: 800; text-align: right; margin: 20px 0; color: #f59e0b; }
+        .btn-order { background: #f59e0b; color: black; font-weight: 800; padding: 18px; border-radius: 14px; border: none; width: 100%; font-size: 16px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <model-viewer id="ar-gosterici"
+        src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
+        ar ar-modes="webxr scene-viewer quick-look"
+        camera-controls 
+        ar-placement="floor"
+        scale="2 0.01 2"
+        shadow-intensity="1">
+        <button slot="ar-button" style="display: none;"></button>
+
+        <div class="ui-layer">
+            <div class="top-bar">
+                <div class="brand">CAFE-AR</div>
+                <div class="cart-btn" onclick="sepetiAc()">
+                    🛒 <span id="cartCount">0</span>
+                </div>
+            </div>
+
+            <div class="info-panel">
+                <h2 style="margin: 0 0 5px 0;">Menüyü Masaya Koy</h2>
+                <p style="margin: 0; font-size: 13px; color: var(--text-muted);">Masayı tarayın, çıkan menüden dokunarak sipariş verin.</p>
+                <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">
+                    📸 Kamerayı Aç ve Menüyü Gör
+                </button>
+            </div>
+        </div>
+    </model-viewer>
+
+    <div id="cartModal">
+        <div class="cart-header">
+            <span>🛒 Sipariş Sepetiniz</span>
+            <button class="close-cart" onclick="sepetiKapat()">✕</button>
+        </div>
+        <div id="cartItems"></div>
+        <div class="cart-total">Toplam: <span id="totalPrice">0</span> ₺</div>
+        <button class="btn-order" onclick="siparisGonder()">🔔 Mutfağa Gönder</button>
+    </div>
+
+    <script>
+        const KULLANICI = "fthlabz";
+        const REPO = "cafe-ar"; 
+        
+        let menuVerisi = [];
+        let sepet = [];
+
+        async function menuyuGetir() {
+            try {
+                const cevap = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`);
+                if (cevap.ok) {
+                    menuVerisi = await cevap.json();
+                    arMenuyuInsaEt();
+                }
+            } catch (e) { console.error("Menü çekilemedi", e); }
+        }
+
+        // İŞTE SİHRİN OLDUĞU YER: Ürünleri Masanın Üstüne Dizme Algoritması
+        function arMenuyuInsaEt() {
+            const mv = document.getElementById('ar-gosterici');
+            
+            // Ürünleri yan yana (grid) dizmek için hesaplama
+            const kolonSayisi = 3; 
+            const aralik = 0.4; // Kartlar arası 40cm mesafe
+
+            menuVerisi.forEach((urun, index) => {
+                const sutun = index % kolonSayisi;
+                const satir = Math.floor(index / kolonSayisi);
+                
+                // Masanın merkezine göre X ve Z koordinatlarını hesapla
+                const x = (sutun - 1) * aralik; // -0.4, 0, 0.4
+                const z = (satir - 1) * aralik; 
+                const y = 0.05; // Kartı masanın (zeminin) 5 cm üstünde havada tut
+
+                const hotspotBtn = document.createElement('button');
+                hotspotBtn.slot = `hotspot-${urun.id}`;
+                hotspotBtn.dataset.position = `${x} ${y} ${z}`; // Havada duracağı yer
+                hotspotBtn.dataset.normal = "0 1 0"; // Yukarı baksın
+                hotspotBtn.className = "hotspot-card";
+                
+                hotspotBtn.innerHTML = `
+                    <img src="${urun.resim}">
+                    <div class="h-title">${urun.ad}</div>
+                    <div class="h-price">${urun.fiyat} ₺</div>
+                    <div class="h-add">SEPETE EKLE</div>
+                `;
+
+                // Tıklanınca telefonu titret ve sepete ekle
+                hotspotBtn.onclick = () => {
+                    if (navigator.vibrate) navigator.vibrate(50); // Haptic Feedback
+                    sepeteEkle(urun);
+                    
+                    // Görsel Geri Bildirim
+                    const addDiv = hotspotBtn.querySelector('.h-add');
+                    addDiv.innerText = "EKLENDİ ✔";
+                    addDiv.style.background = "#10b981"; // Yeşil yap
+                    setTimeout(() => { 
+                        addDiv.innerText = "SEPETE EKLE"; 
+                        addDiv.style.background = "#f59e0b"; 
+                    }, 1000);
+                };
+
+                mv.appendChild(hotspotBtn);
+            });
+        }
+
+        function sepeteEkle(urun) {
+            sepet.push(urun);
+            document.getElementById('cartCount').innerText = sepet.length;
+        }
+
+        function sepetiAc() {
+            const modal = document.getElementById('cartModal');
+            const itemsDiv = document.getElementById('cartItems');
+            let toplam = 0;
+            
+            itemsDiv.innerHTML = "";
+            
+            if(sepet.length === 0) {
+                itemsDiv.innerHTML = "<p style='text-align:center; color:#888;'>Sepetiniz henüz boş.</p>";
+            } else {
+                sepet.forEach((urun, index) => {
+                    toplam += parseFloat(urun.fiyat);
+                    itemsDiv.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <div style="font-weight:600;">${urun.ad}</div>
+                                <div style="font-size:13px; color:#f59e0b;">${urun.fiyat} ₺</div>
+                            </div>
+                            <button class="close-cart" style="color:#ef4444; font-size:16px;" onclick="sepettenCikar(${index})">Sil</button>
+                        </div>
+                    `;
+                });
+            }
+            
+            document.getElementById('totalPrice').innerText = toplam;
+            modal.style.display = 'flex';
+        }
+
+        function sepettenCikar(index) {
+            sepet.splice(index, 1);
+            document.getElementById('cartCount').innerText = sepet.length;
+            sepetiAc(); // Listeyi yenile
+        }
+
+        function sepetiKapat() {
+            document.getElementById('cartModal').style.display = 'none';
+        }
+
+        function siparisGonder() {
+            if(sepet.length === 0) return alert("Sepetiniz boş!");
+            
+            // Gelişmiş versiyonda bu veri GitHub'a orders.json olarak basılacak.
+            // Şimdilik WhatsApp ile anında iletim sağlıyoruz.
+            let mesaj = "🔔 *YENİ SİPARİŞ*\n\n";
+            let toplam = 0;
+            sepet.forEach(u => {
+                mesaj += `- ${u.ad} (${u.fiyat} ₺)\n`;
+                toplam += parseFloat(u.fiyat);
+            });
+            mesaj += `\n*Toplam:* ${toplam} ₺`;
+            
+            window.open(`https://api.whatsapp.com/send?phone=905XXXXXXXXXX&text=${encodeURIComponent(mesaj)}`, '_blank');
+            
+            sepet = [];
+            document.getElementById('cartCount').innerText = "0";
+            sepetiKapat();
+        }
+
+        menuyuGetir();
+    </script>
+</body>
+</html>
