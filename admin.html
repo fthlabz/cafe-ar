@@ -10,55 +10,36 @@
         :root { --bg-dark: #0f0f11; --card-glass: rgba(25, 25, 25, 0.9); --accent: #d4af37; --text-main: #ffffff; --text-muted: #a1a1aa; }
         body { margin: 0; font-family: 'Inter', sans-serif; background: #0f0f11; color: var(--text-main); min-height: 100vh; padding: 20px; }
         .container { max-width: 550px; margin: 0 auto; padding-bottom: 50px; }
-        header { text-align: center; margin-bottom: 20px; }
-        h2 { font-weight: 800; font-size: 24px; margin: 0; color: var(--accent); letter-spacing: 1px; }
         .glass-card { background: var(--card-glass); border-radius: 20px; border: 1px solid rgba(212, 175, 55, 0.2); padding: 20px; margin-bottom: 20px; }
-        
         .upload-area { position: relative; width: 100%; height: 140px; border: 2px dashed rgba(212, 175, 55, 0.4); border-radius: 16px; display: flex; align-items: center; justify-content: center; flex-direction: column; cursor: pointer; background: rgba(0,0,0,0.5); overflow: hidden; margin-bottom: 15px; }
         .upload-area input { position: absolute; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 2; }
         #previewImg { position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; opacity: 0.8; z-index: 1; display: none; }
-        
         input, select { background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); color: white; padding: 15px; border-radius: 12px; font-size: 14px; width: 100%; box-sizing: border-box; margin-bottom: 12px; outline: none; transition: 0.3s;}
-        input:focus, select:focus { border-color: var(--accent); }
-        select option { background: #111; }
-        
-        .btn-main { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; font-size: 15px; margin-top: 5px; transition: 0.2s;}
-        .btn-main:active { transform: scale(0.97); }
-        .btn-sec { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        
+        .btn-main { background: var(--accent); color: #000; border: none; padding: 16px; border-radius: 12px; font-weight: 800; cursor: pointer; width: 100%; font-size: 15px; margin-top: 5px; }
         .list-item { display: flex; align-items: center; background: rgba(0,0,0,0.4); padding: 15px; border-radius: 14px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
         .thumb { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; margin-right: 15px; border: 1px solid var(--accent); }
         .info { flex: 1; }
-        .info h4 { margin: 0 0 5px 0; font-size: 15px; color: var(--accent); }
-        .info p { margin: 0; font-size: 12px; color: var(--text-muted); line-height: 1.4; }
-        .fiyat { font-weight: bold; color: white; font-size: 14px; margin-top: 5px; }
+        .info h4 { margin: 0; font-size: 15px; color: var(--accent); }
+        .fiyat { font-weight: bold; color: white; margin-top: 5px; }
         .btn-action { background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; margin-left: 5px; }
         .btn-del { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
     </style>
 </head>
 <body>
-
 <div class="container">
-    <header>
-        <h2>THE RESTAURANT</h2>
-        <div style="color:var(--text-muted); font-size: 13px; margin-top:5px;">Elit Menü Yönetimi</div>
-    </header>
-
     <div class="glass-card">
         <h3 style="margin: 0 0 10px 0; font-size: 14px; color: #ccc;">⚙️ İşletme Ayarları</h3>
         <div style="display: flex; gap: 10px;">
-            <input type="text" id="restoranAdi" placeholder="İşletme Adı (Örn: LÜKS KAFE)" style="margin-bottom: 0;">
-            <button class="btn-main btn-sec" style="width: 100px; margin-top: 0; padding: 0;" onclick="ayarlariKaydet()">Kaydet</button>
+            <input type="text" id="restoranAdi" placeholder="İşletme Adı" style="margin-bottom: 0;">
+            <button class="btn-main" style="width: 100px; margin-top: 0;" onclick="ayarlariKaydet()">Kaydet</button>
         </div>
     </div>
-
     <div class="glass-card">
         <div class="upload-area">
-            <span id="upText" style="color:var(--accent); font-weight:bold;">📸 Ürün Görseli Seç</span>
+            <span id="upText" style="color:var(--accent); font-weight:bold;">📸 Görsel Seç</span>
             <img id="previewImg">
             <input type="file" id="fileInput" accept="image/*" onchange="gorselSec(this)">
         </div>
-
         <select id="kategori">
             <option value="AnaYemekler">Ana Yemekler</option>
             <option value="Baslangiclar">Başlangıçlar</option>
@@ -66,151 +47,100 @@
             <option value="SicakIcecekler">Sıcak İçecekler</option>
             <option value="SogukIcecekler">Soğuk İçecekler</option>
         </select>
-        
-        <input type="text" id="urunAdi" placeholder="Yemek Adı (Örn: Dana Lokum)" required>
-        <input type="text" id="icerik" placeholder="İçindekiler (Örn: Trüf mantarı, bebek patates)" required>
-        
+        <input type="text" id="urunAdi" placeholder="Ürün Adı" required>
+        <input type="text" id="icerik" placeholder="İçindekiler" required>
         <div style="display: flex; gap: 10px;">
-            <input type="text" id="kalori" placeholder="Kalori (Örn: 450 kcal)">
-            <input type="text" id="fiyat" placeholder="Fiyat (Örn: 850)" required>
+            <input type="text" id="kalori" placeholder="Kalori">
+            <input type="text" id="fiyat" placeholder="Fiyat" required>
         </div>
-        
         <button class="btn-main" onclick="menuyeEkle()">MENÜYE EKLE</button>
-        <div id="statusText" style="text-align:center; color:var(--accent); display:none; margin-top:10px; font-size:13px;">İşleniyor...</div>
+        <div id="statusText" style="text-align:center; color:var(--accent); display:none; margin-top:10px;">İşleniyor...</div>
     </div>
-
     <div class="glass-card">
-        <h3 style="margin: 0 0 15px 0; font-size: 16px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">Yayındaki Menü (<span id="count">0</span>)</h3>
+        <h3 style="margin: 0 0 15px 0; font-size: 16px;">Yayındaki Menü (<span id="count">0</span>)</h3>
         <div id="menuListesi"></div>
     </div>
 </div>
-
 <script>
-    const KULLANICI = "fthlabz"; 
-    const REPO = "cafe-ar"; 
+    const KULLANICI = "fthlabz"; const REPO = "cafe-ar"; 
     const sifreliKasa = "U2FsdGVkX19mc0X7xpzonbEzWQgJl2dp+4Oqrqhg6zeA49eOwhvOSgJsBs2IQkLhw61Ilvvd6nS1CVjkJ+0bnA=="; 
     const gizliPin = "1453"; 
     const githubToken = CryptoJS.AES.decrypt(sifreliKasa, gizliPin).toString(CryptoJS.enc.Utf8); 
-
     let menu = [];
 
     function gorselSec(input) {
         if (input.files[0]) {
             const reader = new FileReader();
-            reader.onload = e => {
-                document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('previewImg').style.display = 'block';
-                document.getElementById('upText').style.display = 'none';
-            }
+            reader.onload = e => { document.getElementById('previewImg').src = e.target.result; document.getElementById('previewImg').style.display = 'block'; document.getElementById('upText').style.display = 'none'; }
             reader.readAsDataURL(input.files[0]);
         }
     }
 
     async function sistemiBaslat() {
-        // Menüyü Çek
-        try {
-            const cevap = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`);
-            if (cevap.ok) { menu = await cevap.json(); listeyiCiz(); }
-        } catch (e) {}
-        
-        // Ayarları Çek
-        try {
-            const ayarCevap = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/ayarlar.json?t=${Date.now()}`);
-            if (ayarCevap.ok) { 
-                const ayarlar = await ayarCevap.json(); 
-                if(ayarlar.restoranAdi) document.getElementById('restoranAdi').value = ayarlar.restoranAdi;
-            }
-        } catch (e) {}
+        try { const c = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`); if (c.ok) { menu = await c.json(); listeyiCiz(); } } catch (e) {}
+        try { const a = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/ayarlar.json?t=${Date.now()}`); if (a.ok) { const ayar = await a.json(); document.getElementById('restoranAdi').value = ayar.restoranAdi || ""; } } catch (e) {}
     }
     sistemiBaslat();
 
-    // İŞLETME ADI KAYDETME MOTORU
     async function ayarlariKaydet() {
-        const ad = document.getElementById('restoranAdi').value || "THE RESTAURANT";
-        const url = `https://api.github.com/repos/${KULLANICI}/${REPO}/contents/ayarlar.json`;
-        let sha = "";
-        try { const r = await fetch(url, { headers: { 'Authorization': `token ${githubToken}` } }); if(r.ok) sha = (await r.json()).sha; } catch(e){}
-        
-        await fetch(url, { 
-            method: 'PUT', headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' }, 
-            body: JSON.stringify({ message: "Ayarlar guncellendi", content: btoa(unescape(encodeURIComponent(JSON.stringify({restoranAdi: ad})))), sha: sha || undefined }) 
+        const ad = document.getElementById('restoranAdi').value;
+        await fetch(`https://api.github.com/repos/${KULLANICI}/${REPO}/contents/ayarlar.json`, { 
+            method: 'PUT', headers: { 'Authorization': `token ${githubToken}` }, 
+            body: JSON.stringify({ message: "Ayarlar", content: btoa(unescape(encodeURIComponent(JSON.stringify({restoranAdi: ad})))), sha: await getSha("ayarlar.json") }) 
         });
-        alert("İşletme adı başarıyla güncellendi!");
+        alert("Güncellendi!");
     }
 
     async function menuyeEkle() {
         const file = document.getElementById('fileInput').files[0];
-        const ad = document.getElementById('urunAdi').value;
-        const icerik = document.getElementById('icerik').value;
-        const kalori = document.getElementById('kalori').value;
-        const fiyat = document.getElementById('fiyat').value;
-        const kategori = document.getElementById('kategori').value;
-
-        if (!file || !ad || !fiyat) { alert("Resim, İsim ve Fiyat zorunludur!"); return; }
-
-        const st = document.getElementById('statusText');
-        st.style.display = "block"; st.innerText = "Görsel İşleniyor... ⏳";
-
-        const url = URL.createObjectURL(file);
-        const img = new Image(); img.src = url;
-        
-        await new Promise(r => img.onload = r);
-        const canvas = document.createElement('canvas');
-        let size = Math.min(img.width, img.height);
-        canvas.width = 600; canvas.height = 600;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, (img.width-size)/2, (img.height-size)/2, size, size, 0, 0, 600, 600);
-        
-        const base64Content = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
-        const dosyaAdi = `yemek_${Date.now()}.jpg`;
-
-        st.innerText = "Buluta Yükleniyor... ☁️";
-
-        try {
-            const res = await fetch(`https://api.github.com/repos/${KULLANICI}/${REPO}/contents/images/${dosyaAdi}`, {
-                method: 'PUT', headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: "Yemek eklendi", content: base64Content })
+        if (!file) return;
+        const st = document.getElementById('statusText'); st.style.display = "block";
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+            const content = e.target.result.split(',')[1];
+            const dosyaAdi = `img_${Date.now()}.jpg`;
+            const r = await fetch(`https://api.github.com/repos/${KULLANICI}/${REPO}/contents/images/${dosyaAdi}`, {
+                method: 'PUT', headers: { 'Authorization': `token ${githubToken}` },
+                body: JSON.stringify({ message: "Foto", content: content })
             });
-
-            if (res.ok) {
-                const data = await res.json();
-                menu.push({ id: Date.now(), ad: ad, icerik: icerik, kalori: kalori, fiyat: fiyat, kategori: kategori, resim: data.content.download_url });
-                await jsonKaydet();
-                st.innerText = "Menüye Eklendi! ✅";
-                setTimeout(() => st.style.display = 'none', 2000);
-                listeyiCiz();
+            if (r.ok) {
+                const d = await r.json();
+                menu.push({ id: Date.now(), ad: document.getElementById('urunAdi').value, icerik: document.getElementById('icerik').value, kalori: document.getElementById('kalori').value, fiyat: document.getElementById('fiyat').value, kategori: document.getElementById('kategori').value, resim: d.content.download_url });
+                await jsonKaydet(); listeyiCiz(); st.style.display = "none";
             }
-        } catch (e) { alert("Bağlantı Hatası!"); }
+        };
+        reader.readAsDataURL(file);
     }
 
     function listeyiCiz() {
-        const list = document.getElementById('menuListesi');
-        document.getElementById('count').innerText = menu.length;
-        list.innerHTML = "";
-        [...menu].reverse().forEach(u => {
-            list.innerHTML += `
-                <div class="list-item">
-                    <img src="${u.resim}" class="thumb">
-                    <div class="info">
-                        <h4>${u.ad}</h4><p>${u.kategori}</p><div class="fiyat">${u.fiyat} ₺</div>
-                    </div>
-                    <button class="btn-action btn-del" onclick="sil(${u.id})">🗑️</button>
-                </div>`;
-        });
+        const list = document.getElementById('menuListesi'); document.getElementById('count').innerText = menu.length;
+        list.innerHTML = menu.map(u => `
+            <div class="list-item">
+                <img src="${u.resim}" class="thumb">
+                <div class="info"><h4>${u.ad}</h4><div class="fiyat">${u.fiyat} ₺</div></div>
+                <button class="btn-action" onclick="fiyatGuncelle(${u.id})">✏️</button>
+                <button class="btn-action btn-del" onclick="sil(${u.id})">🗑️</button>
+            </div>`).join('');
     }
 
-    async function sil(id) {
-        if (confirm("Silmek istediğinize emin misiniz?")) {
-            menu = menu.filter(m => m.id !== id);
-            await jsonKaydet(); listeyiCiz();
-        }
+    async function fiyatGuncelle(id) {
+        const urun = menu.find(m => m.id === id);
+        const yeni = prompt("Yeni fiyat:", urun.fiyat);
+        if (yeni) { urun.fiyat = yeni; await jsonKaydet(); listeyiCiz(); }
+    }
+
+    async function sil(id) { if (confirm("Silinsin mi?")) { menu = menu.filter(m => m.id !== id); await jsonKaydet(); listeyiCiz(); } }
+
+    async function getSha(path) {
+        try { const r = await fetch(`https://api.github.com/repos/${KULLANICI}/${REPO}/contents/${path}`, { headers: { 'Authorization': `token ${githubToken}` } }); if(r.ok) return (await r.json()).sha; } catch(e){}
+        return undefined;
     }
 
     async function jsonKaydet() {
-        const url = `https://api.github.com/repos/${KULLANICI}/${REPO}/contents/menu.json`;
-        let sha = "";
-        try { const r = await fetch(url, { headers: { 'Authorization': `token ${githubToken}` } }); if(r.ok) sha = (await r.json()).sha; } catch(e){}
-        await fetch(url, { method: 'PUT', headers: { 'Authorization': `token ${githubToken}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ message: "Menu guncellendi", content: btoa(unescape(encodeURIComponent(JSON.stringify(menu)))), sha: sha || undefined }) });
+        await fetch(`https://api.github.com/repos/${KULLANICI}/${REPO}/contents/menu.json`, {
+            method: 'PUT', headers: { 'Authorization': `token ${githubToken}` },
+            body: JSON.stringify({ message: "Update", content: btoa(unescape(encodeURIComponent(JSON.stringify(menu)))), sha: await getSha("menu.json") })
+        });
     }
 </script>
 </body>
