@@ -3,32 +3,64 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cafe-AR | Kusursuz Totem</title>
+    <title>Cafe-AR | Elite Totem</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;800&family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
-        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #000; color: white; display: flex; flex-direction: column; height: 100vh; }
-        .header { display: flex; flex-direction: column; align-items: center; padding: 20px; background: #000; border-bottom: 2px solid #d4af37; z-index: 20; }
-        .brand { font-family: 'Playfair Display', serif; font-size: 28px; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; }
-        .sub-brand { font-size: 14px; color: #a1a1aa; font-weight: 400; margin-top: 5px; letter-spacing: 5px; text-transform: uppercase; }
-        .ar-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
+        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #050505; color: white; display: flex; flex-direction: column; height: 100vh; }
+        
+        /* Şık Header */
+        .header { display: flex; flex-direction: column; align-items: center; padding: 25px 20px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212, 175, 55, 0.3); z-index: 20; }
+        .brand { font-family: 'Playfair Display', serif; font-size: 26px; color: #d4af37; text-transform: uppercase; letter-spacing: 3px; }
+        .sub-brand { font-size: 12px; color: #888; font-weight: 600; margin-top: 6px; letter-spacing: 6px; text-transform: uppercase; }
+        
+        .ar-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at center, #1a1a1a 0%, #000 80%); }
         model-viewer { width: 100%; height: 100%; outline: none; }
-        .btn-ar { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%); color: #000; font-weight: 900; padding: 20px 45px; border-radius: 50px; border: none; cursor: pointer; font-size: 18px; box-shadow: 0 10px 30px rgba(212,175,55,0.4); z-index: 50;}
-        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
-        .loading-text { font-family: 'Playfair Display', serif; color: #d4af37; font-size: 20px; font-weight: bold; }
+        
+        /* --- ELİT CAM BUTON (AMATÖR SARI BUTON ÇÖPE GİTTİ) --- */
+        .btn-ar { 
+            position: absolute; 
+            bottom: 50px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background: rgba(15, 15, 15, 0.6); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 175, 55, 0.5); 
+            color: #d4af37; 
+            font-family: 'Inter', sans-serif;
+            font-weight: 600; 
+            padding: 16px 32px; 
+            border-radius: 40px; 
+            cursor: pointer; 
+            font-size: 16px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8); 
+            z-index: 50;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-ar:active { transform: translateX(-50%) scale(0.95); background: rgba(212, 175, 55, 0.15); }
+        .btn-ar svg { width: 22px; height: 22px; fill: #d4af37; }
+
+        /* Yükleme Ekranı */
+        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: #050505; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #222; border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
+        .loading-text { font-family: 'Inter', sans-serif; color: #888; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div id="loader">
         <div class="spinner"></div>
-        <div class="loading-text">Menü Hazırlanıyor...</div>
+        <div class="loading-text">Menü Hazırlanıyor</div>
     </div>
     
     <div class="header">
         <div class="brand" id="tepeRestoranAdi">YÜKLENİYOR...</div>
-        <div class="sub-brand" id="kategoriBasligi">Menü</div>
+        <div class="sub-brand" id="kategoriBasligi">MENÜ</div>
     </div>
 
     <div class="ar-container">
@@ -36,11 +68,21 @@
             src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
             ar ar-modes="webxr scene-viewer quick-look"
             camera-controls
+            auto-rotate
+            rotation-per-second="15deg"
+            camera-orbit="0deg 90deg 3.5m"
+            camera-target="auto"
             ar-placement="floor"
             scale="1.2 2.4 0.02"
-            shadow-intensity="2">
+            shadow-intensity="2"
+            shadow-softness="1">
+            
             <button slot="ar-button" style="display: none;"></button>
-            <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">AR TOTEMİ YERLEŞTİR</button>
+            
+            <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">
+                <svg viewBox="0 0 24 24"><path d="M12 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm0-2a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm9.3-5.2A19.5 19.5 0 0 0 12 3a19.5 19.5 0 0 0-9.3 4.8c-.4.4-.4 1 0 1.4L4 10.5c.4.4 1 .4 1.4 0A15.5 15.5 0 0 1 12 7c2.5 0 4.8.6 6.6 1.7.4.2 1 .1 1.4-.3l1.3-1.3c.4-.3.4-.9 0-1.3zM12 21c-2.5 0-4.8-.6-6.6-1.7-.4-.2-1-.1-1.4.3L2.7 21c-.4.3-.4.9 0 1.3A19.5 19.5 0 0 0 12 25a19.5 19.5 0 0 0 9.3-4.8c.4-.4.4-1 0-1.4l-1.3-1.3c-.4-.4-1-.4-1.4 0A15.5 15.5 0 0 1 12 21z"/></svg>
+                Mekanda Görüntüle
+            </button>
         </model-viewer>
     </div>
 
@@ -58,7 +100,7 @@
             const kat = url.get('kategori') || 'Tümü';
             
             if(kat !== 'Tümü') {
-                document.getElementById('kategoriBasligi').innerText = kat.replace(/([A-Z])/g, ' $1').trim() + " Menüsü";
+                document.getElementById('kategoriBasligi').innerText = kat.replace(/([A-Z])/g, ' $1').trim();
             }
 
             const c = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`);
@@ -93,21 +135,19 @@
         
         ctx.fillStyle = '#d4af37'; ctx.textAlign = 'center';
         ctx.font = '900 80px Playfair Display'; ctx.fillText(isletmeAdi, 600, 180);
-        ctx.fillStyle = '#aaaaaa'; ctx.font = '800 35px Inter'; ctx.letterSpacing = "6px"; 
+        ctx.fillStyle = '#aaaaaa';
+        ctx.font = '800 35px Inter'; ctx.letterSpacing = "6px"; 
         ctx.fillText(kat === 'Tümü' ? 'MENÜ' : kat.toUpperCase(), 600, 250);
+        
         ctx.beginPath(); ctx.moveTo(400, 290); ctx.lineTo(800, 290); ctx.stroke();
 
         if(veriler.length === 0) {
-            ctx.fillStyle = '#d4af37'; ctx.font = 'bold 50px "Playfair Display", serif';
+            ctx.fillStyle = '#d4af37'; ctx.font = 'bold 40px "Inter", sans-serif';
             ctx.textAlign = 'center'; ctx.fillText('Bu Kategoride Ürün Bulunmuyor', 600, 1200);
         } else {
-            
-            // --- DİNAMİK AUTO-FIT (ÖLÇEKLEME) MOTORU ---
-            // Toplam çizilebilecek dikey alan (Başlık ve alt imza hariç)
-            let maxCizimAlani = canvas.height - 550; // Yaklaşık 1850px
+            let maxCizimAlani = canvas.height - 550; 
             let urunSayisi = veriler.length;
             
-            // Standart Elit Değerler (Max 6 ürün için kusursuzdur)
             let bosluk = 310; 
             let rBoyut = 220;
             let bPunto = 50; 
@@ -115,24 +155,21 @@
             let iPunto = 32;
             let kPunto = 26;
 
-            // Eğer ürün sayısı standart alanı aşıyorsa, matematiği devreye sok ve her şeyi orantılı küçült!
             if ((urunSayisi * bosluk) > maxCizimAlani) {
                 let kucultmeOrani = maxCizimAlani / (urunSayisi * bosluk);
                 bosluk = bosluk * kucultmeOrani;
                 rBoyut = rBoyut * kucultmeOrani;
-                bPunto = Math.max(25, bPunto * kucultmeOrani); // En fazla 25px'e kadar küçülsün
+                bPunto = Math.max(25, bPunto * kucultmeOrani); 
                 fPunto = Math.max(28, fPunto * kucultmeOrani);
                 iPunto = Math.max(18, iPunto * kucultmeOrani);
                 kPunto = Math.max(14, kPunto * kucultmeOrani);
             }
-            // ------------------------------------------
 
-            let y = 380; 
+            let y = 400; 
             
             for (const u of veriler) {
-                if(y > canvas.height - 150) break; // Tampon güvenlik kilidi
+                if(y > canvas.height - 300) break; 
 
-                // 1. ÜRÜN GÖRSELİ (Dinamik boyutlu)
                 if (u.resim) { 
                     try {
                         const img = await new Promise(r => { const i = new Image(); i.crossOrigin="anonymous"; i.onload=()=>r(i); i.src=u.resim; });
@@ -147,75 +184,68 @@
                     } catch(e) {}
                 }
 
-                // 2. YEMEK ADI
                 ctx.textAlign = 'left'; 
                 ctx.fillStyle = '#d4af37'; 
                 ctx.font = `bold ${bPunto}px Playfair Display`;
                 const adMetni = u.ad || "İsimsiz";
-                ctx.fillText(adMetni, 140 + rBoyut, y + (rBoyut * 0.3)); // İsmi resme göre hizala
+                ctx.fillText(adMetni, 140 + rBoyut, y + (rBoyut * 0.3)); 
                 
-                // 3. FİYAT
                 ctx.fillStyle = '#fff'; 
                 ctx.font = `900 ${fPunto}px Inter`; 
                 ctx.textAlign = 'right';
                 const fiyatText = u.fiyat + ' ₺';
                 ctx.fillText(fiyatText, 1100, y + (rBoyut * 0.3));
 
-                // 4. KUSURSUZ NOKTALI BAĞLANTI
                 ctx.font = `bold ${bPunto}px Playfair Display`;
                 const adGenislik = ctx.measureText(adMetni).width;
                 ctx.font = `900 ${fPunto}px Inter`;
                 const fiyatGenislik = ctx.measureText(fiyatText).width;
                 
-                const dotStartX = 140 + rBoyut + adGenislik + 20; 
-                const dotEndX = 1100 - fiyatGenislik - 20; 
+                const dotStartX = 140 + rBoyut + adGenislik + 25; 
+                const dotEndX = 1100 - fiyatGenislik - 25; 
                 
                 if (dotEndX > dotStartX) {
                     ctx.fillStyle = 'rgba(212,175,55,0.4)';
-                    ctx.font = `bold ${bPunto * 0.8}px Inter`; // Noktalar da orantılı küçülsün
+                    ctx.font = `bold ${bPunto * 0.8}px Inter`; 
                     ctx.textAlign = 'left';
                     for(let px = dotStartX; px < dotEndX; px += 20) {
                         ctx.fillText(".", px, y + (rBoyut * 0.25)); 
                     }
                 }
 
-                // 5. İÇİNDEKİLER 
                 ctx.textAlign = 'left'; 
                 ctx.fillStyle = '#cccccc'; 
                 ctx.font = `${iPunto}px Inter`;
                 const words = (u.icerik || "").split(' '); 
                 let line = ''; 
-                let ty = y + (rBoyut * 0.6); // Metni resmin ortasına doğru başlat
+                let ty = y + (rBoyut * 0.6); 
                 
                 for(let n=0; n < words.length; n++) {
                     let testLine = line + words[n] + ' ';
                     if (ctx.measureText(testLine).width > (900 - rBoyut) && n > 0) { 
                         ctx.fillText(line, 140 + rBoyut, ty); 
                         line = words[n] + ' '; 
-                        ty += (iPunto * 1.4); // Satır arası boşluk
+                        ty += (iPunto * 1.4); 
                     } else { 
                         line = testLine; 
                     }
                 }
                 ctx.fillText(line, 140 + rBoyut, ty);
                 
-                // 6. KALORİ
                 if(u.kalori) { 
                     ctx.fillStyle = '#888888'; 
                     ctx.font = `italic ${kPunto}px Inter`; 
                     ctx.fillText(u.kalori + " kcal", 140 + rBoyut, ty + (kPunto * 1.5)); 
                 }
 
-                // Bir sonraki ürüne geç (Otomatik ayarlanan boşluk kadar ilerle)
                 y += bosluk;
             }
         }
 
-        // DEV İMZA
-        ctx.fillStyle = '#777777'; 
+        ctx.fillStyle = '#555'; 
         ctx.font = '900 35px Montserrat'; 
         ctx.textAlign = 'center';
-        ctx.letterSpacing = "3px";
+        ctx.letterSpacing = "4px";
         ctx.fillText('POWERED BY FTHLABZ', 600, canvas.height - 60);
 
         const mv = document.getElementById('ar-gosterici');
