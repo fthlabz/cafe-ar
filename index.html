@@ -40,7 +40,7 @@
             scale="1.2 2.4 0.02"
             shadow-intensity="2">
             <button slot="ar-button" style="display: none;"></button>
-            <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">Menüyü gör</button>
+            <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">AR TOTEMİ YERLEŞTİR</button>
         </model-viewer>
     </div>
 
@@ -76,140 +76,148 @@
 
     async function arMenuCiz(veriler, kat) {
         const canvas = document.createElement('canvas'); 
-        // 1.2m en ve 2.4m boy oranı için tuvali (1:2) yaptık
-        canvas.width = 1200; 
-        canvas.height = 2400; 
+        canvas.width = 1200; canvas.height = 2400; 
         const ctx = canvas.getContext('2d');
         
-        // AYNA DÜZELTME (Bunu sen de test ettin, yazıları düz gösteriyor)
         ctx.translate(canvas.width, 0); 
         ctx.scale(-1, 1);
         
-        // ELİT SİYAH ZEMİN (Gradient)
         const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
         grd.addColorStop(0, "#1a1a1a");
         grd.addColorStop(1, "#050505");
-        ctx.fillStyle = grd; 
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = grd; ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // İKİLİ ALTIN ÇERÇEVE
         ctx.strokeStyle = '#d4af37'; 
-        ctx.lineWidth = 8; 
-        ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
-        ctx.lineWidth = 2; 
-        ctx.strokeRect(55, 55, canvas.width - 110, canvas.height - 110);
+        ctx.lineWidth = 8; ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+        ctx.lineWidth = 2; ctx.strokeRect(55, 55, canvas.width - 110, canvas.height - 110);
         
-        // İŞLETME ADI VE KATEGORİ BAŞLIĞI
         ctx.fillStyle = '#d4af37'; ctx.textAlign = 'center';
         ctx.font = '900 80px Playfair Display'; ctx.fillText(isletmeAdi, 600, 180);
-        ctx.fillStyle = '#aaaaaa';
-        ctx.font = '800 35px Inter'; ctx.letterSpacing = "6px"; 
+        ctx.fillStyle = '#aaaaaa'; ctx.font = '800 35px Inter'; ctx.letterSpacing = "6px"; 
         ctx.fillText(kat === 'Tümü' ? 'MENÜ' : kat.toUpperCase(), 600, 250);
-        
-        // BAŞLIK ALTI ÇİZGİ
         ctx.beginPath(); ctx.moveTo(400, 290); ctx.lineTo(800, 290); ctx.stroke();
 
         if(veriler.length === 0) {
-            ctx.fillStyle = '#d4af37';
-            ctx.font = 'bold 50px "Playfair Display", serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('Bu Kategoride Ürün Bulunmuyor', 600, 1200);
+            ctx.fillStyle = '#d4af37'; ctx.font = 'bold 50px "Playfair Display", serif';
+            ctx.textAlign = 'center'; ctx.fillText('Bu Kategoride Ürün Bulunmuyor', 600, 1200);
         } else {
-            let y = 400; // İlk ürünün başlayacağı yükseklik
-            const sabitBosluk = 320; // Ürünler arası kusursuz, nizami, sabit boşluk
+            
+            // --- DİNAMİK AUTO-FIT (ÖLÇEKLEME) MOTORU ---
+            // Toplam çizilebilecek dikey alan (Başlık ve alt imza hariç)
+            let maxCizimAlani = canvas.height - 550; // Yaklaşık 1850px
+            let urunSayisi = veriler.length;
+            
+            // Standart Elit Değerler (Max 6 ürün için kusursuzdur)
+            let bosluk = 310; 
+            let rBoyut = 220;
+            let bPunto = 50; 
+            let fPunto = 55;
+            let iPunto = 32;
+            let kPunto = 26;
+
+            // Eğer ürün sayısı standart alanı aşıyorsa, matematiği devreye sok ve her şeyi orantılı küçült!
+            if ((urunSayisi * bosluk) > maxCizimAlani) {
+                let kucultmeOrani = maxCizimAlani / (urunSayisi * bosluk);
+                bosluk = bosluk * kucultmeOrani;
+                rBoyut = rBoyut * kucultmeOrani;
+                bPunto = Math.max(25, bPunto * kucultmeOrani); // En fazla 25px'e kadar küçülsün
+                fPunto = Math.max(28, fPunto * kucultmeOrani);
+                iPunto = Math.max(18, iPunto * kucultmeOrani);
+                kPunto = Math.max(14, kPunto * kucultmeOrani);
+            }
+            // ------------------------------------------
+
+            let y = 380; 
             
             for (const u of veriler) {
-                if(y > canvas.height - 300) break; // Kanvastan taşmayı engeller
+                if(y > canvas.height - 150) break; // Tampon güvenlik kilidi
 
-                // 1. ÜRÜN GÖRSELİ
+                // 1. ÜRÜN GÖRSELİ (Dinamik boyutlu)
                 if (u.resim) { 
                     try {
                         const img = await new Promise(r => { const i = new Image(); i.crossOrigin="anonymous"; i.onload=()=>r(i); i.src=u.resim; });
                         ctx.save();
                         ctx.beginPath();
-                        ctx.roundRect ? ctx.roundRect(100, y, 220, 220, 25) : ctx.rect(100, y, 220, 220);
+                        ctx.roundRect ? ctx.roundRect(100, y, rBoyut, rBoyut, 25) : ctx.rect(100, y, rBoyut, rBoyut);
                         ctx.clip();
-                        ctx.drawImage(img, 100, y, 220, 220); 
+                        ctx.drawImage(img, 100, y, rBoyut, rBoyut); 
                         ctx.restore();
-                        // Resim Çerçevesi
                         ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)'; ctx.lineWidth = 3;
-                        ctx.roundRect ? ctx.strokeRect(100, y, 220, 220, 25) : ctx.strokeRect(100, y, 220, 220);
+                        ctx.roundRect ? ctx.strokeRect(100, y, rBoyut, rBoyut, 25) : ctx.strokeRect(100, y, rBoyut, rBoyut);
                     } catch(e) {}
                 }
 
                 // 2. YEMEK ADI
                 ctx.textAlign = 'left'; 
                 ctx.fillStyle = '#d4af37'; 
-                ctx.font = 'bold 50px Playfair Display';
+                ctx.font = `bold ${bPunto}px Playfair Display`;
                 const adMetni = u.ad || "İsimsiz";
-                ctx.fillText(adMetni, 360, y + 65);
+                ctx.fillText(adMetni, 140 + rBoyut, y + (rBoyut * 0.3)); // İsmi resme göre hizala
                 
-                // 3. FİYAT (En sağa dayalı)
+                // 3. FİYAT
                 ctx.fillStyle = '#fff'; 
-                ctx.font = '900 55px Inter'; 
+                ctx.font = `900 ${fPunto}px Inter`; 
                 ctx.textAlign = 'right';
                 const fiyatText = u.fiyat + ' ₺';
-                ctx.fillText(fiyatText, 1100, y + 65);
+                ctx.fillText(fiyatText, 1100, y + (rBoyut * 0.3));
 
-                // 4. KUSURSUZ NOKTALI BAĞLANTI (Asla fiyatı geçmez!)
-                ctx.font = 'bold 50px Playfair Display';
+                // 4. KUSURSUZ NOKTALI BAĞLANTI
+                ctx.font = `bold ${bPunto}px Playfair Display`;
                 const adGenislik = ctx.measureText(adMetni).width;
-                ctx.font = '900 55px Inter';
+                ctx.font = `900 ${fPunto}px Inter`;
                 const fiyatGenislik = ctx.measureText(fiyatText).width;
                 
-                const dotStartX = 360 + adGenislik + 25; // İsimden 25px sonra başla
-                const dotEndX = 1100 - fiyatGenislik - 25; // Fiyattan 25px önce dur
+                const dotStartX = 140 + rBoyut + adGenislik + 20; 
+                const dotEndX = 1100 - fiyatGenislik - 20; 
                 
                 if (dotEndX > dotStartX) {
                     ctx.fillStyle = 'rgba(212,175,55,0.4)';
-                    ctx.font = 'bold 45px Inter';
+                    ctx.font = `bold ${bPunto * 0.8}px Inter`; // Noktalar da orantılı küçülsün
                     ctx.textAlign = 'left';
-                    // Sadece sığdığı kadar nokta çiz
                     for(let px = dotStartX; px < dotEndX; px += 20) {
-                        ctx.fillText(".", px, y + 55); 
+                        ctx.fillText(".", px, y + (rBoyut * 0.25)); 
                     }
                 }
 
-                // 5. İÇİNDEKİLER VE AÇIKLAMA (Alt Alta Kaydırma Algoritması)
+                // 5. İÇİNDEKİLER 
                 ctx.textAlign = 'left'; 
                 ctx.fillStyle = '#cccccc'; 
-                ctx.font = '32px Inter';
+                ctx.font = `${iPunto}px Inter`;
                 const words = (u.icerik || "").split(' '); 
                 let line = ''; 
-                let ty = y + 130;
+                let ty = y + (rBoyut * 0.6); // Metni resmin ortasına doğru başlat
                 
                 for(let n=0; n < words.length; n++) {
                     let testLine = line + words[n] + ' ';
-                    if (ctx.measureText(testLine).width > 700 && n > 0) { 
-                        ctx.fillText(line, 360, ty); 
+                    if (ctx.measureText(testLine).width > (900 - rBoyut) && n > 0) { 
+                        ctx.fillText(line, 140 + rBoyut, ty); 
                         line = words[n] + ' '; 
-                        ty += 45; 
+                        ty += (iPunto * 1.4); // Satır arası boşluk
                     } else { 
                         line = testLine; 
                     }
                 }
-                ctx.fillText(line, 360, ty);
+                ctx.fillText(line, 140 + rBoyut, ty);
                 
                 // 6. KALORİ
                 if(u.kalori) { 
                     ctx.fillStyle = '#888888'; 
-                    ctx.font = 'italic 26px Inter'; 
-                    ctx.fillText(u.kalori + " kcal", 360, ty + 50); 
+                    ctx.font = `italic ${kPunto}px Inter`; 
+                    ctx.fillText(u.kalori + " kcal", 140 + rBoyut, ty + (kPunto * 1.5)); 
                 }
 
-                // Bir sonraki ürüne geç
-                y += sabitBosluk;
+                // Bir sonraki ürüne geç (Otomatik ayarlanan boşluk kadar ilerle)
+                y += bosluk;
             }
         }
 
-        // DEV İMZA: POWERED BY FTHLABZ (En alt ortada)
+        // DEV İMZA
         ctx.fillStyle = '#777777'; 
         ctx.font = '900 35px Montserrat'; 
         ctx.textAlign = 'center';
         ctx.letterSpacing = "3px";
         ctx.fillText('POWERED BY FTHLABZ', 600, canvas.height - 60);
 
-        // Canvas'ı AR Modeline Kapla
         const mv = document.getElementById('ar-gosterici');
         if (mv.model) {
             const tex = await mv.createTexture(canvas.toDataURL('image/jpeg', 0.9));
