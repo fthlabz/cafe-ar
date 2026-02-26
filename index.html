@@ -3,37 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Cafe-AR | Elite Totem</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600&family=Montserrat:wght@900&display=swap" rel="stylesheet">
+    <title>Cafe-AR | Kusursuz Totem</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;800&family=Montserrat:wght@900&display=swap" rel="stylesheet">
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #000; color: white; display: flex; flex-direction: column; height: 100vh; }
         .header { display: flex; flex-direction: column; align-items: center; padding: 20px; background: #000; border-bottom: 2px solid #d4af37; z-index: 20; }
         .brand { font-family: 'Playfair Display', serif; font-size: 28px; color: #d4af37; text-transform: uppercase; letter-spacing: 2px; }
-        .ar-container { flex: 1; position: relative; }
+        .sub-brand { font-size: 14px; color: #a1a1aa; font-weight: 400; margin-top: 5px; letter-spacing: 5px; text-transform: uppercase; }
+        .ar-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; }
         model-viewer { width: 100%; height: 100%; outline: none; }
-        .btn-ar { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%); color: #000; font-weight: 900; padding: 20px 50px; border-radius: 50px; border: none; cursor: pointer; font-size: 18px; box-shadow: 0 0 30px rgba(212,175,55,0.5); }
-        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; z-index: 100; display: flex; justify-content: center; align-items: center; }
-        .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; }
+        .btn-ar { position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%); color: #000; font-weight: 900; padding: 20px 45px; border-radius: 50px; border: none; cursor: pointer; font-size: 18px; box-shadow: 0 10px 30px rgba(212,175,55,0.4); z-index: 50;}
+        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
+        .loading-text { font-family: 'Playfair Display', serif; color: #d4af37; font-size: 20px; font-weight: bold; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div id="loader"><div class="spinner"></div></div>
-    <div class="header"><div class="brand" id="tepeRestoranAdi">YÜKLENİYOR...</div></div>
+    <div id="loader">
+        <div class="spinner"></div>
+        <div class="loading-text">Menü Hazırlanıyor...</div>
+    </div>
+    
+    <div class="header">
+        <div class="brand" id="tepeRestoranAdi">YÜKLENİYOR...</div>
+        <div class="sub-brand" id="kategoriBasligi">Menü</div>
+    </div>
+
     <div class="ar-container">
         <model-viewer id="ar-gosterici"
             src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
             ar ar-modes="webxr scene-viewer quick-look"
             camera-controls
-            camera-target="0m 1.25m 0m"
             ar-placement="floor"
-            scale="1.5 2.5 0.05"
+            scale="1.2 2.4 0.02"
             shadow-intensity="2">
             <button slot="ar-button" style="display: none;"></button>
-            <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">DEVAR MENÜYÜ AÇ</button>
+            <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">AR TOTEMİ YERLEŞTİR</button>
         </model-viewer>
     </div>
+
 <script>
     const KULLANICI = "fthlabz"; const REPO = "cafe-ar";
     let isletmeAdi = "THE RESTAURANT";
@@ -46,6 +56,11 @@
 
             const url = new URLSearchParams(window.location.search);
             const kat = url.get('kategori') || 'Tümü';
+            
+            if(kat !== 'Tümü') {
+                document.getElementById('kategoriBasligi').innerText = kat.replace(/([A-Z])/g, ' $1').trim() + " Menüsü";
+            }
+
             const c = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`);
             if (c.ok) {
                 let d = await c.json();
@@ -53,84 +68,155 @@
                 await arMenuCiz(d, kat);
             }
         } catch (e) {}
-        document.getElementById('loader').style.display = 'none';
+        
+        setTimeout(() => {
+            document.getElementById('loader').style.display = 'none';
+        }, 500);
     }
 
     async function arMenuCiz(veriler, kat) {
         const canvas = document.createElement('canvas'); 
-        canvas.width = 1200; canvas.height = 2000; // Ekranı tam doldurmak için yükseklik arttı
+        // 1.2m en ve 2.4m boy oranı için tuvali (1:2) yaptık
+        canvas.width = 1200; 
+        canvas.height = 2400; 
         const ctx = canvas.getContext('2d');
         
-        // AYNA DÜZELTME
-        ctx.translate(canvas.width, 0); ctx.scale(-1, 1);
+        // AYNA DÜZELTME (Bunu sen de test ettin, yazıları düz gösteriyor)
+        ctx.translate(canvas.width, 0); 
+        ctx.scale(-1, 1);
         
-        // ZEMİN
-        ctx.fillStyle = "#0a0a0a"; ctx.fillRect(0, 0, 1200, 2000);
-        ctx.strokeStyle = '#d4af37'; ctx.lineWidth = 15; ctx.strokeRect(40, 40, 1120, 1920);
+        // ELİT SİYAH ZEMİN (Gradient)
+        const grd = ctx.createLinearGradient(0, 0, 0, canvas.height);
+        grd.addColorStop(0, "#1a1a1a");
+        grd.addColorStop(1, "#050505");
+        ctx.fillStyle = grd; 
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // BAŞLIKLAR
+        // İKİLİ ALTIN ÇERÇEVE
+        ctx.strokeStyle = '#d4af37'; 
+        ctx.lineWidth = 8; 
+        ctx.strokeRect(40, 40, canvas.width - 80, canvas.height - 80);
+        ctx.lineWidth = 2; 
+        ctx.strokeRect(55, 55, canvas.width - 110, canvas.height - 110);
+        
+        // İŞLETME ADI VE KATEGORİ BAŞLIĞI
         ctx.fillStyle = '#d4af37'; ctx.textAlign = 'center';
-        ctx.font = '900 85px Playfair Display'; ctx.fillText(isletmeAdi, 600, 180);
-        ctx.font = '900 40px Montserrat'; ctx.fillText(kat.toUpperCase() + " MENÜSÜ", 600, 250);
-        ctx.beginPath(); ctx.moveTo(400, 280); ctx.lineTo(800, 280); ctx.stroke();
-
-        // ÜRÜN DİZİLİMİ
-        let y = 420;
-        // Boşlukları ürün sayısına göre orantıla (Dolu görünmesi için)
-        const spacing = Math.max(280, 1500 / (veriler.length || 1));
+        ctx.font = '900 80px Playfair Display'; ctx.fillText(isletmeAdi, 600, 180);
+        ctx.fillStyle = '#aaaaaa';
+        ctx.font = '800 35px Inter'; ctx.letterSpacing = "6px"; 
+        ctx.fillText(kat === 'Tümü' ? 'MENÜ' : kat.toUpperCase(), 600, 250);
         
-        for (const u of veriler) {
-            // Görsel
-            if (u.resim) { 
-                const img = await new Promise(r => { const i = new Image(); i.crossOrigin="anonymous"; i.onload=()=>r(i); i.src=u.resim; });
-                ctx.drawImage(img, 100, y, 220, 220); // Resim büyütüldü
-            }
+        // BAŞLIK ALTI ÇİZGİ
+        ctx.beginPath(); ctx.moveTo(400, 290); ctx.lineTo(800, 290); ctx.stroke();
 
-            // Ürün Adı
-            ctx.textAlign = 'left'; ctx.fillStyle = '#d4af37'; ctx.font = 'bold 55px Playfair Display';
-            ctx.fillText(u.ad, 350, y + 65);
+        if(veriler.length === 0) {
+            ctx.fillStyle = '#d4af37';
+            ctx.font = 'bold 50px "Playfair Display", serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Bu Kategoride Ürün Bulunmuyor', 600, 1200);
+        } else {
+            let y = 400; // İlk ürünün başlayacağı yükseklik
+            const sabitBosluk = 320; // Ürünler arası kusursuz, nizami, sabit boşluk
             
-            // Fiyat
-            ctx.fillStyle = '#fff'; ctx.font = '900 60px Inter'; ctx.textAlign = 'right';
-            const fiyatText = u.fiyat + ' ₺';
-            ctx.fillText(fiyatText, 1100, y + 65);
+            for (const u of veriler) {
+                if(y > canvas.height - 300) break; // Kanvastan taşmayı engeller
 
-            // ELİT NOKTALI BAĞLANTI (İsim ve Fiyat arası dolgu)
-            const adGenislik = ctx.measureText(u.ad).width;
-            const fiyatGenislik = ctx.measureText(fiyatText).width;
-            ctx.textAlign = 'left'; ctx.font = 'bold 55px Inter'; ctx.fillStyle = 'rgba(212,175,55,0.4)';
-            const dotsX = 350 + adGenislik + 20;
-            const dotsEnd = 1100 - fiyatGenislik - 20;
-            if(dotsEnd > dotsX) {
-                let dots = ""; for(let i=0; i<30; i++) dots += ". ";
-                ctx.fillText(dots, dotsX, y + 55);
+                // 1. ÜRÜN GÖRSELİ
+                if (u.resim) { 
+                    try {
+                        const img = await new Promise(r => { const i = new Image(); i.crossOrigin="anonymous"; i.onload=()=>r(i); i.src=u.resim; });
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.roundRect ? ctx.roundRect(100, y, 220, 220, 25) : ctx.rect(100, y, 220, 220);
+                        ctx.clip();
+                        ctx.drawImage(img, 100, y, 220, 220); 
+                        ctx.restore();
+                        // Resim Çerçevesi
+                        ctx.strokeStyle = 'rgba(212, 175, 55, 0.4)'; ctx.lineWidth = 3;
+                        ctx.roundRect ? ctx.strokeRect(100, y, 220, 220, 25) : ctx.strokeRect(100, y, 220, 220);
+                    } catch(e) {}
+                }
+
+                // 2. YEMEK ADI
+                ctx.textAlign = 'left'; 
+                ctx.fillStyle = '#d4af37'; 
+                ctx.font = 'bold 50px Playfair Display';
+                const adMetni = u.ad || "İsimsiz";
+                ctx.fillText(adMetni, 360, y + 65);
+                
+                // 3. FİYAT (En sağa dayalı)
+                ctx.fillStyle = '#fff'; 
+                ctx.font = '900 55px Inter'; 
+                ctx.textAlign = 'right';
+                const fiyatText = u.fiyat + ' ₺';
+                ctx.fillText(fiyatText, 1100, y + 65);
+
+                // 4. KUSURSUZ NOKTALI BAĞLANTI (Asla fiyatı geçmez!)
+                ctx.font = 'bold 50px Playfair Display';
+                const adGenislik = ctx.measureText(adMetni).width;
+                ctx.font = '900 55px Inter';
+                const fiyatGenislik = ctx.measureText(fiyatText).width;
+                
+                const dotStartX = 360 + adGenislik + 25; // İsimden 25px sonra başla
+                const dotEndX = 1100 - fiyatGenislik - 25; // Fiyattan 25px önce dur
+                
+                if (dotEndX > dotStartX) {
+                    ctx.fillStyle = 'rgba(212,175,55,0.4)';
+                    ctx.font = 'bold 45px Inter';
+                    ctx.textAlign = 'left';
+                    // Sadece sığdığı kadar nokta çiz
+                    for(let px = dotStartX; px < dotEndX; px += 20) {
+                        ctx.fillText(".", px, y + 55); 
+                    }
+                }
+
+                // 5. İÇİNDEKİLER VE AÇIKLAMA (Alt Alta Kaydırma Algoritması)
+                ctx.textAlign = 'left'; 
+                ctx.fillStyle = '#cccccc'; 
+                ctx.font = '32px Inter';
+                const words = (u.icerik || "").split(' '); 
+                let line = ''; 
+                let ty = y + 130;
+                
+                for(let n=0; n < words.length; n++) {
+                    let testLine = line + words[n] + ' ';
+                    if (ctx.measureText(testLine).width > 700 && n > 0) { 
+                        ctx.fillText(line, 360, ty); 
+                        line = words[n] + ' '; 
+                        ty += 45; 
+                    } else { 
+                        line = testLine; 
+                    }
+                }
+                ctx.fillText(line, 360, ty);
+                
+                // 6. KALORİ
+                if(u.kalori) { 
+                    ctx.fillStyle = '#888888'; 
+                    ctx.font = 'italic 26px Inter'; 
+                    ctx.fillText(u.kalori + " kcal", 360, ty + 50); 
+                }
+
+                // Bir sonraki ürüne geç
+                y += sabitBosluk;
             }
-
-            // İçerik (Alt alta yazdırma zekası)
-            ctx.textAlign = 'left'; ctx.fillStyle = '#ccc'; ctx.font = '32px Inter';
-            const words = (u.icerik || "").split(' '); let line = ''; let ty = y + 135;
-            for(let n=0; n<words.length; n++) {
-                if (ctx.measureText(line + words[n]).width > 650) { ctx.fillText(line, 350, ty); line = words[n] + ' '; ty += 45; }
-                else line += words[n] + ' ';
-            }
-            ctx.fillText(line, 350, ty);
-            
-            // Kalori
-            if(u.kalori) { ctx.fillStyle = '#888'; ctx.font = 'italic 26px Inter'; ctx.fillText(u.kalori + " kcal", 350, ty + 45); }
-
-            y += spacing;
         }
 
-        // DEV İMZA: POWERED BY FTHLABZ
-        ctx.fillStyle = '#fff'; ctx.font = '900 45px Montserrat'; ctx.textAlign = 'center';
-        ctx.fillText('POWERED BY FTHLABZ', 600, 1950);
+        // DEV İMZA: POWERED BY FTHLABZ (En alt ortada)
+        ctx.fillStyle = '#777777'; 
+        ctx.font = '900 35px Montserrat'; 
+        ctx.textAlign = 'center';
+        ctx.letterSpacing = "3px";
+        ctx.fillText('POWERED BY FTHLABZ', 600, canvas.height - 60);
 
+        // Canvas'ı AR Modeline Kapla
         const mv = document.getElementById('ar-gosterici');
         if (mv.model) {
             const tex = await mv.createTexture(canvas.toDataURL('image/jpeg', 0.9));
             mv.model.materials[0].pbrMetallicRoughness.baseColorTexture.setTexture(tex);
         }
     }
+    
     sistemiBaslat();
 </script>
 </body>
