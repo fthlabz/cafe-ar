@@ -9,7 +9,6 @@
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #050505; color: white; display: flex; flex-direction: column; height: 100vh; }
         
-        /* Şık Header */
         .header { display: flex; flex-direction: column; align-items: center; padding: 25px 20px; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(212, 175, 55, 0.3); z-index: 20; }
         .brand { font-family: 'Playfair Display', serif; font-size: 26px; color: #d4af37; text-transform: uppercase; letter-spacing: 3px; }
         .sub-brand { font-size: 12px; color: #888; font-weight: 600; margin-top: 6px; letter-spacing: 6px; text-transform: uppercase; }
@@ -17,7 +16,7 @@
         .ar-container { flex: 1; position: relative; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle at center, #1a1a1a 0%, #000 80%); }
         model-viewer { width: 100%; height: 100%; outline: none; }
         
-        /* --- ELİT CAM BUTON (AMATÖR SARI BUTON ÇÖPE GİTTİ) --- */
+        /* --- ELİT CAM BUTON --- */
         .btn-ar { 
             position: absolute; 
             bottom: 50px; 
@@ -45,22 +44,21 @@
         .btn-ar:active { transform: translateX(-50%) scale(0.95); background: rgba(212, 175, 55, 0.15); }
         .btn-ar svg { width: 22px; height: 22px; fill: #d4af37; }
 
-        /* Yükleme Ekranı */
-        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: #050505; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .spinner { width: 40px; height: 40px; border: 3px solid #222; border-top: 3px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
-        .loading-text { font-family: 'Inter', sans-serif; color: #888; font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+        #loader { position: absolute; top:0; left:0; width:100%; height:100%; background: #000; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .spinner { width: 50px; height: 50px; border: 5px solid #333; border-top: 5px solid #d4af37; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;}
+        .loading-text { font-family: 'Playfair Display', serif; color: #d4af37; font-size: 20px; font-weight: bold; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div id="loader">
         <div class="spinner"></div>
-        <div class="loading-text">Menü Hazırlanıyor</div>
+        <div class="loading-text">Menü Hazırlanıyor...</div>
     </div>
     
     <div class="header">
         <div class="brand" id="tepeRestoranAdi">YÜKLENİYOR...</div>
-        <div class="sub-brand" id="kategoriBasligi">MENÜ</div>
+        <div class="sub-brand" id="kategoriBasligi">Menü</div>
     </div>
 
     <div class="ar-container">
@@ -68,15 +66,10 @@
             src="https://cdn.jsdelivr.net/gh/KhronosGroup/glTF-Sample-Models@master/2.0/BoxTextured/glTF-Binary/BoxTextured.glb"
             ar ar-modes="webxr scene-viewer quick-look"
             camera-controls
-            auto-rotate
-            rotation-per-second="15deg"
-            camera-orbit="0deg 90deg 3.5m"
-            camera-target="auto"
+            camera-orbit="0deg 90deg 3m"
             ar-placement="floor"
             scale="1.2 2.4 0.02"
-            shadow-intensity="2"
-            shadow-softness="1">
-            
+            shadow-intensity="2">
             <button slot="ar-button" style="display: none;"></button>
             
             <button class="btn-ar" onclick="document.getElementById('ar-gosterici').activateAR()">
@@ -100,7 +93,7 @@
             const kat = url.get('kategori') || 'Tümü';
             
             if(kat !== 'Tümü') {
-                document.getElementById('kategoriBasligi').innerText = kat.replace(/([A-Z])/g, ' $1').trim();
+                document.getElementById('kategoriBasligi').innerText = kat.replace(/([A-Z])/g, ' $1').trim() + " Menüsü";
             }
 
             const c = await fetch(`https://raw.githubusercontent.com/${KULLANICI}/${REPO}/main/menu.json?t=${Date.now()}`);
@@ -142,7 +135,7 @@
         ctx.beginPath(); ctx.moveTo(400, 290); ctx.lineTo(800, 290); ctx.stroke();
 
         if(veriler.length === 0) {
-            ctx.fillStyle = '#d4af37'; ctx.font = 'bold 40px "Inter", sans-serif';
+            ctx.fillStyle = '#d4af37'; ctx.font = 'bold 50px "Playfair Display", serif';
             ctx.textAlign = 'center'; ctx.fillText('Bu Kategoride Ürün Bulunmuyor', 600, 1200);
         } else {
             let maxCizimAlani = canvas.height - 550; 
@@ -165,10 +158,10 @@
                 kPunto = Math.max(14, kPunto * kucultmeOrani);
             }
 
-            let y = 400; 
+            let y = 380; 
             
             for (const u of veriler) {
-                if(y > canvas.height - 300) break; 
+                if(y > canvas.height - 150) break; 
 
                 if (u.resim) { 
                     try {
@@ -242,10 +235,10 @@
             }
         }
 
-        ctx.fillStyle = '#555'; 
+        ctx.fillStyle = '#777777'; 
         ctx.font = '900 35px Montserrat'; 
         ctx.textAlign = 'center';
-        ctx.letterSpacing = "4px";
+        ctx.letterSpacing = "3px";
         ctx.fillText('POWERED BY FTHLABZ', 600, canvas.height - 60);
 
         const mv = document.getElementById('ar-gosterici');
